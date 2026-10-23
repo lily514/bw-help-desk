@@ -39,6 +39,48 @@ export interface KnowledgeEntry {
   updatedAt: string
 }
 
+export type MessageRole = 'parent' | 'ai' | 'staff'
+
+export interface Message {
+  id: string
+  parentId: string
+  role: MessageRole
+  text: string
+  /** Knowledge entry ids (AI messages only). */
+  citations: string[]
+  staffName: string | null
+  staffRole: string | null
+  requestId: string | null
+  isTest: boolean
+  createdAt: string
+}
+
+/** What the parent's thread needs to know about each request (no scores). */
+export interface ThreadRequest {
+  id: string
+  messageId: string
+  route: Route
+  status: RequestStatus
+  suggestedRole: StaffRole
+  forwardedTo: StaffRole | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ThreadResponse {
+  messages: Message[]
+  requests: ThreadRequest[]
+  /** Pass back as `?since=` on the next poll. */
+  serverTime: string
+}
+
+/** Server-Sent Events from POST /api/chat. */
+export type ChatEvent =
+  | { event: 'user'; data: { message: Message } }
+  | { event: 'route'; data: { requestId: string; route: Route; status: RequestStatus } }
+  | { event: 'delta'; data: { text: string } }
+  | { event: 'done'; data: { message: Message; citations: string[] } }
+
 /** Router output, stored as JSON on each request. Values are 0–1 except topic. */
 export interface RouteScores {
   topic: Category

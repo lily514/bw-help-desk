@@ -1,4 +1,15 @@
-import type { Category, KnowledgeEntry, Parent, Room } from '../../src/shared/types'
+import type {
+  Category,
+  KnowledgeEntry,
+  Message,
+  MessageRole,
+  Parent,
+  RequestStatus,
+  Room,
+  Route,
+  StaffRole,
+  ThreadRequest,
+} from '../../src/shared/types'
 
 // Row shapes as stored in D1 (snake_case, 0/1 booleans).
 
@@ -19,6 +30,37 @@ export interface KnowledgeRow {
   body: string
   from_parent_question: number
   source_request_id: string | null
+  updated_at: string
+}
+
+export interface MessageRow {
+  id: string
+  parent_id: string
+  role: string
+  text: string
+  citations: string | null
+  staff_name: string | null
+  staff_role: string | null
+  request_id: string | null
+  is_test: number
+  created_at: string
+}
+
+export interface RequestRow {
+  id: string
+  parent_id: string
+  message_id: string
+  route: string
+  reason: string
+  scores: string
+  router: string
+  suggested_role: string
+  topic: string
+  answerable: number
+  status: string
+  forwarded_to: string | null
+  is_test: number
+  created_at: string
   updated_at: string
 }
 
@@ -106,4 +148,82 @@ export async function updateKnowledge(
     )
     .bind(fields.title, fields.category, fields.body, fields.updatedAt, id)
     .run()
+}
+
+export function toMessage(r: MessageRow): Message {
+  return {
+    id: r.id,
+    parentId: r.parent_id,
+    role: r.role as MessageRole,
+    text: r.text,
+    citations: r.citations ? (JSON.parse(r.citations) as string[]) : [],
+    staffName: r.staff_name,
+    staffRole: r.staff_role,
+    requestId: r.request_id,
+    isTest: r.is_test === 1,
+    createdAt: r.created_at,
+  }
+}
+
+export function toThreadRequest(r: RequestRow): ThreadRequest {
+  return {
+    id: r.id,
+    messageId: r.message_id,
+    route: r.route as Route,
+    status: r.status as RequestStatus,
+    suggestedRole: r.suggested_role as StaffRole,
+    forwardedTo: r.forwarded_to as StaffRole | null,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  }
+}
+
+export async function insertMessage(db: D1Database, m: Message): Promise<void> {
+  await db
+    .prepare(
+      `INSERT INTO messages
+         (id, parent_id, role, text, citations, staff_name, staff_role, request_id, is_test, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .bind(
+      m.id,
+      m.parentId,
+      m.role,
+      m.text,
+      m.role === 'ai' ? JSON.stringify(m.citations) : null,
+      m.staffName,
+      m.staffRole,
+      m.requestId,
+      m.isTest ? 1 : 0,
+      m.createdAt,
+    )
+    .run()
+}
+
+/** Messages for a parent, oldest first; with `since`, only those created after it. */
+export async function listMessages(
+  db: D1Database,
+  parentId: string,
+  since?: string,
+): Promise<Message[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT * FROM messages WHERE parent_id = ? AND created_at > ? ORDER BY created_at, rowid`,
+    )
+    .bind(parentId, since ?? '')
+    .all<MessageRow>()
+  return results.map(toMessage)
+}
+
+/** A parent's requests; with `since`, only those created or updated after it. */
+export async function listThreadRequests(
+  db: D1Database,
+  parentId: string,
+  since?: string,
+): Promise<ThreadRequest[]> {
+  const { results } = await db
+    .prepare(`SELECT * FROM requests WHERE parent_id = ? AND updated_at > ? ORDER BY created_at`)
+    .bind(parentId, since ?? '')
+    .all<RequestRow>()
+  return results.map(toThreadRequest)
 }

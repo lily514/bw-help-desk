@@ -60,7 +60,7 @@ laptop            + static React app     └─ D1 (SQLite)     → parents, mes
 
 ```
 /
-├─ PLAN.md                 this file
+├─ docs/PLAN.md            this file (docs/journal.md: decision notes)
 ├─ CLAUDE.md               "Follow PLAN.md, one phase per branch" + conventions
 ├─ README.md               setup, deploy, demo script
 ├─ data/handbook.md        knowledge base seed
@@ -373,7 +373,7 @@ Center phone (765) 555-0142; "Dana usually replies within 2 hours on weekdays"; 
 ## 5. Git workflow
 
 - `main` is always deployable. Never commit directly to it.
-- One branch per phase, named as listed below.
+- One branch per phase, named `feature/<phase>` as listed below.
 - Small Conventional Commits: `feat(router): add decide() with thresholds`, `fix(parent): keep input above keyboard`, `test(answer): citation marker split across deltas`.
 - Before each PR: `npm run typecheck`, `npm test` and `npm run build` pass.
 - One PR per phase: summary, how to test, screenshots for UI phases, anything deferred.
@@ -386,53 +386,53 @@ Center phone (765) 555-0142; "Dana usually replies within 2 hours on weekdays"; 
 
 Each phase lists its branch, rough timebox, scope and done check. Stay in scope; put extras in the PR as follow-ups.
 
-### Phase 0 — `chore/scaffold` (15 min)
+### Phase 0 — `feature/scaffold` (15 min)
 - Vite + React + TS, Hono Worker, `wrangler.toml` (D1 binding, static assets), one `npm run dev`.
 - ESLint/Prettier, Vitest, `typecheck`/`test`/`build` scripts, `.gitignore`, `.dev.vars.example`.
 - `tokens.css` with the 4.1 tokens, Figtree loaded.
 - `CLAUDE.md`; `data/handbook.md`; `GET /api/health`.
 - **Done when:** the deployed URL shows the React shell and `/api/health` responds.
 
-### Phase 1 — `feat/data-and-seed` (20 min)
+### Phase 1 — `feature/data-and-seed` (20 min)
 - Migration for all five tables.
 - `scripts/seed.ts`: parse `## [id] Title (updated YYYY-MM-DD)` sections into `knowledge_entries` with the category mapping; insert Sam and the seed history (2.2).
 - Parents and KB endpoints.
 - Test: the parser yields 29 entries with correct ids, categories and dates.
 - **Done when:** `GET /api/kb` on the live URL returns all 29 entries.
 
-### Phase 2 — `feat/answer-engine` (25 min)
+### Phase 2 — `feature/answer-engine` (25 min)
 - `answer.ts`: prompt per 3.4, streaming, `[[cite: …]]` parsing with validation, prompt caching.
 - `POST /api/chat` as SSE (everything routed `answered` for now), `GET /api/thread/:parentId`.
 - Test: citation parser, including a marker split across deltas.
 - **Done when:** "Are you closed the Friday after Thanksgiving?" streams a yes citing `hours:holidays`, and "How much is tuition for the Twos room?" gives $270/week citing `fees:tuition`.
 
-### Phase 3 — `feat/router` (30 min)
+### Phase 3 — `feature/router` (30 min)
 - `router.ts` (Jev + Claude fallback), `decide.ts`, reasons, role mapping; wire into chat with requests, SSE `route` event, failure fallback, rate limit.
 - Tests for `decide()`: urgent beats everything; sensitive → handed off; low answerability → handed off; staff action or child health → looped in; plain factual → answered.
 - **Done when:** scenarios #1–#14 route as expected (or within one over-escalation) with and without a Jev key. Tag `v0.1`.
 
-### Phase 4 — `feat/parent-ui` (35 min)
+### Phase 4 — `feature/parent-ui` (35 min)
 - Sign in, create demo parent, thread, bubbles, streaming render, citation chips, policy sheet, status card, urgent banner, "Ask a person," 2-second polling.
 - **Done when:** at 375px all four routes render per 4.3, and an answer streams in.
 
-### Phase 5 — `feat/operator-inbox` (35 min)
+### Phase 5 — `feature/operator-inbox` (35 min)
 - Shell (sidebar / bottom tabs), Inbox list and detail per 4.4, seen, forward, reply, save as answer (add or create), polling with slide-in highlight.
 - **Done when:** a question sent from a phone appears on the laptop within a few seconds; forwarding and replying update the phone's status card; saving #3's reply makes #15 route to AI answers.
 
-### Phase 6 — `feat/knowledge` (15 min)
+### Phase 6 — `feature/knowledge` (15 min)
 - Knowledge list and editor per 4.4.
 - **Done when:** editing an entry changes the next AI answer.
 
-### Phase 7 — `feat/insights` (10 min)
+### Phase 7 — `feature/insights` (10 min)
 - Stat tiles, top topics, Couldn't answer with Add answer.
 - **Done when:** the seed history shows real numbers, and test runs don't change them.
 
-### Phase 8 — `feat/test-mode` (25 min)
+### Phase 8 — `feature/test-mode` (25 min)
 - Switch, bar, client-driven run/pause/reset, scenarios and canned replies, results panel with the row styles in 4.5.
 - Tune thresholds or question wording in `router.ts`/`decide.ts` until the run is about 14/15 with 0 unsafe misses and #15 learned.
 - **Done when:** a full run completes unattended and Reset restores a clean state.
 
-### Phase 9 — `chore/polish-and-submit` (15 min)
+### Phase 9 — `feature/polish-and-submit` (15 min)
 - Empty, loading and error states; mobile pass on both views.
 - README: what it is, architecture sketch, setup, deploy, a 60-second demo script, known simplifications (polling, no retrieval), and next steps (adjustable thresholds, multi-staff accounts, retrieval for long handbooks, real auth, voice).
 - Final deploy, tag `v1.0`.

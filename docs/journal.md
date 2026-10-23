@@ -1,64 +1,64 @@
-Notes about requirements
+# Journal
 
-* Effort ~3 hours
-* Lightweight, mobile-friendly
+## Notes about requirements
 
-Parent experience (front desk):
-* Let a parent ask a question (text, voice, guided flow - your choice)
-* Provide an answer that is specific to the center and feels trustworthy
-* When uncertain or the question is sensitive, handle it gracefully
+- Effort ~3 hours
+- Lightweight, mobile-friendly
 
-Operator experience (control center):
-* Give staff a way to provide or edit the source of truth
-* Show what questions are being asked and where the system struggled
-* Make it easy to improve the system over time (even if it’s simple)
+**Parent experience (front desk):**
 
-* Response quality and trustworthiness > document parsing
-* Create synthetic data
+- Let a parent ask a question (text, voice, guided flow - your choice)
+- Provide an answer that is specific to the center and feels trustworthy
+- When uncertain or the question is sensitive, handle it gracefully
 
-Scope choice: breadth, depth, or novelty
+**Operator experience (control center):**
 
-Evaluation:
-Scope & completeness: Did you pick a realistic scope and finish it well?
-Persuasiveness: Would this excite a team to fund and build for real?
-User empathy: Does it reduce friction and make good decisions on behalf of users?
-Uniqueness: Any insight, craft, or implementation detail that stands out?
+- Give staff a way to provide or edit the source of truth
+- Show what questions are being asked and where the system struggled
+- Make it easy to improve the system over time (even if it’s simple)
 
-------
+**Other notes:**
 
-Questions/Decision points in Claude session
+- Response quality and trustworthiness > document parsing
+- Create synthetic data
 
-* Language - python + react/typescript like my most recent hackathon project
-* Hosting - 
-    first thought - I don't want to use azure b/c it is connected to work accounts
-    github? 
-    cloudflare?
-* novelty - I would love to use Jev just for my own experience, we'll use it as a router 
+**Scope choice:** breadth, depth, or novelty
 
-* Language - if I use cloudflare we could do all typescript, I've never done it before but it could help keep scope down?
+**Evaluation:**
 
-* Grounding data -
-I'm going to feed my daycare handbook to claude and have it create something based on that.
-Benefit is that I am familiar with their policies so I can act as a SME
-Don't need robust document
+- **Scope & completeness:** Did you pick a realistic scope and finish it well?
+- **Persuasiveness:** Would this excite a team to fund and build for real?
+- **User empathy:** Does it reduce friction and make good decisions on behalf of users?
+- **Uniqueness:** Any insight, craft, or implementation detail that stands out?
 
-* Do we need a RAG? If the document isn't too big for the context window you could skip the rag part
-context stuffing instead would work
+---
 
-experience design - what does the parent see?
-fake login, free text chat, one ongoing thread
+## Questions / decision points in Claude session
 
-routing design - 
-in my experience there are questions that need to go to admin and questions that need to go to the teacher
-probably out of scope. if time may add that layer for "novelty?" maybe just have the ai have a "forward to --- role ---" suggestion
+- **Language** - python + react/typescript like my most recent hackathon project
+- **Hosting**
+  - first thought - I don't want to use azure b/c it is connected to work accounts
+  - github?
+  - cloudflare?
+- **Novelty** - I would love to use Jev just for my own experience, we'll use it as a router
+- **Language (revisited)** - if I use cloudflare we could do all typescript, I've never done it before but it could help keep scope down?
+- **Grounding data**
+  - I'm going to feed my daycare handbook to claude and have it create something based on that.
+  - Benefit is that I am familiar with their policies so I can act as a SME
+  - Don't need robust document
+- **Do we need a RAG?** - If the document isn't too big for the context window you could skip the rag part; context stuffing instead would work
+- **Experience design** - what does the parent see?
+  - fake login, free text chat, one ongoing thread
+- **Routing design**
+  - in my experience there are questions that need to go to admin and questions that need to go to the teacher
+  - probably out of scope. if time may add that layer for "novelty?" maybe just have the ai have a "forward to --- role ---" suggestion
+- **What should escalate** - see what jev and claude come up with to start and refine later
+- **Testing** - make sure there is an easy way to automate asking/answering a question
+- create handoff for claude design
 
-what should escalate - 
-see what jev and claude come up with to start and refine later
+---
 
-testing
-make sure there is an easy way to automate asking/answering a question
+## Log
 
-create handoff for claude design
-
-----
-
+- claude console decided I was suspicious and I got locked out for a few hours. Pivoting to use a different model for chat completions via openrouter
+- reorganized the repo structure to the frontend/ & backend/ folder structure that is more familiar to me

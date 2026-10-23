@@ -9,7 +9,7 @@ import type {
   Route,
   StaffRole,
   ThreadRequest,
-} from '../../src/shared/types'
+} from '../../shared/types'
 
 // Row shapes as stored in D1 (snake_case, 0/1 booleans).
 

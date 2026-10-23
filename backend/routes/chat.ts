@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { streamSSE } from 'hono/streaming'
-import type { ChatEvent, Message } from '../../src/shared/types'
+import type { ChatEvent, Message } from '../../shared/types'
 import type { Env } from '../env'
 import { streamAnswer } from '../lib/answer'
 import { HANDED_OFF_ACK } from '../lib/copy'

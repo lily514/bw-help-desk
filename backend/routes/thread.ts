@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import type { ThreadResponse } from '../../src/shared/types'
+import type { ThreadResponse } from '../../shared/types'
 import type { Env } from '../env'
 import { getParent, listMessages, listThreadRequests } from '../lib/db'
 

@@ -1,4 +1,4 @@
-import type { Route, RouteScores } from '../../src/shared/types'
+import type { Route, RouteScores } from '../../shared/types'
 import { DIRECTOR, HANDED_OFF_ACK } from './copy'
 import { parseHandbook } from './handbook'
 import { suggestedRole } from './roles'

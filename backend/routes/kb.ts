@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { CATEGORIES, type Category, type KnowledgeEntry } from '../../src/shared/types'
+import { CATEGORIES, type Category, type KnowledgeEntry } from '../../shared/types'
 import type { Env } from '../env'
 import { getKnowledge, insertKnowledge, listKnowledge, updateKnowledge } from '../lib/db'
 import { slugify } from '../lib/slug'

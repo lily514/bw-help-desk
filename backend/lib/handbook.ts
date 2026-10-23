@@ -1,4 +1,4 @@
-import type { Category, KnowledgeEntry } from '../../src/shared/types'
+import type { Category, KnowledgeEntry } from '../../shared/types'
 
 /** Handbook id prefix → operator-facing category (PLAN.md 2.1). */
 const CATEGORY_BY_PREFIX: Record<string, Category> = {

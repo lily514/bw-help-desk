@@ -1,4 +1,4 @@
-import type { Category, Route, StaffRole } from '../../src/shared/types'
+import type { Category, Route, StaffRole } from '../../shared/types'
 
 const ROLE_BY_TOPIC: Record<Category, StaffRole> = {
   Health: 'Director',

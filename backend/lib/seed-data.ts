@@ -1,4 +1,4 @@
-import type { Category, Parent, Room } from '../../src/shared/types'
+import type { Category, Parent, Room } from '../../shared/types'
 
 /** Synthetic history (PLAN.md 2.2) so Insights and the Inbox aren't empty on first load. */
 

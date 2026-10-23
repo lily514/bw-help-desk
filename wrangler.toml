@@ -1,5 +1,5 @@
 name = "maple-grove-front-desk"
-main = "worker/index.ts"
+main = "backend/index.ts"
 compatibility_date = "2026-10-01"
 compatibility_flags = ["nodejs_compat"]
 
@@ -19,4 +19,4 @@ ROUTER = "jev"
 binding = "DB"
 database_name = "maple-grove"
 database_id = "00000000-0000-0000-0000-000000000000"
-migrations_dir = "migrations"
+migrations_dir = "backend/migrations"

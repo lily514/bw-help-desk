@@ -1,5 +1,5 @@
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions'
-import type { KnowledgeEntry, Message, Parent } from '../../src/shared/types'
+import type { KnowledgeEntry, Message, Parent } from '../../shared/types'
 import type { Env } from '../env'
 import { CitationStream } from './citations'
 import { LLM_TIMEOUT_MS, openRouter } from './llm'

@@ -3,7 +3,7 @@
 //        npm run db:seed -- --remote (deployed database)
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { buildSeedSql } from '../worker/lib/seed'
+import { buildSeedSql } from '../lib/seed'
 
 const remote = process.argv.includes('--remote')
 const handbook = readFileSync('data/handbook.md', 'utf8')

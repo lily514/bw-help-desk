@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "npm run build && vite preview",
-    "deploy": "npm run build && wrangler deploy",
+    "deploy": "npm run build && wrangler deploy --config dist/maple_grove_front_desk/wrangler.json",
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -1,0 +1,3 @@
+# Copy to .dev.vars for local dev. In production use `wrangler secret put OPENROUTER_API_KEY`.
+# One OpenRouter key powers both the answer model and the Jev router.
+OPENROUTER_API_KEY=

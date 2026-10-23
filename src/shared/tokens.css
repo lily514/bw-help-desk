@@ -1,0 +1,85 @@
+/* Maple Grove design tokens (PLAN.md 4.1). Light only; the design has no dark theme. */
+:root {
+  --bg: #f4f6f3;
+  --surface: #ffffff;
+  --text: #1e2b25;
+  --text-2: #3d4a44;
+  --muted: #5b6a62;
+  --border: #dde3de;
+  --border-strong: #c9d2cc;
+  --divider: #e7ece8;
+
+  --accent: #2e6b4e;
+  --accent-hover: #1f4f38;
+  --accent-tint: #e8f1eb;
+  --accent-tint-border: #c5d9cc;
+
+  --staff-bubble: #f1ece2;
+  --staff-bubble-border: #e2d8c6;
+  --staff-bubble-text: #5a4a2e;
+
+  --handoff-tint: #e6ecf6;
+  --handoff-text: #2d4a73;
+
+  --urgent: #b5470f;
+  --urgent-card-border: #f0c9ae;
+  --urgent-card-bg: #fdf2ea;
+
+  --test: #f2c94c;
+  --test-text: #2b2200;
+
+  --over-escalation-bg: #fff4d6;
+  --over-escalation-border: #e3b341;
+  --over-escalation-text: #7a5300;
+
+  --unsafe: #b3261e;
+
+  --radius-card: 16px;
+  --radius-button: 12px;
+  --radius-cta: 16px;
+  --radius-bubble: 18px;
+  --radius-bubble-tail: 6px;
+  --radius-pill: 11px;
+  --tap: 44px;
+
+  --font: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--accent);
+}
+
+a:hover {
+  color: var(--accent-hover);
+}

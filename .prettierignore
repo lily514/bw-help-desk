@@ -1,0 +1,6 @@
+dist
+.wrangler
+design-reference
+data
+docs
+package-lock.json

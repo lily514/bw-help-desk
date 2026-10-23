@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { plainPunctuation } from '../worker/lib/answer'
 import { CitationStream } from '../worker/lib/citations'
 
 const VALID = new Set(['hours:holidays', 'fees:tuition', 'hours:regular'])
@@ -57,5 +58,11 @@ describe('CitationStream', () => {
   it('works with no marker at all', () => {
     const r = run(['Plain answer.'])
     expect(r).toMatchObject({ shown: 'Plain answer.', text: 'Plain answer.', citations: [] })
+  })
+})
+
+describe('plainPunctuation', () => {
+  it('straightens curly quotes and ellipses', () => {
+    expect(plainPunctuation('We’re closed “Friday”…')).toBe('We\'re closed "Friday"...')
   })
 })

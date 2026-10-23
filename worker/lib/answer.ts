@@ -12,6 +12,7 @@ const HISTORY_LIMIT = 6
 const ROLE_AND_RULES = `You are the front desk assistant for Maple Grove Early Learning Center, answering parents in a chat.
 
 Voice: warm, plain and short, like a kind staff member texting back. Usually two to four sentences. Use the child's first name. No emoji, no headings, no bullet lists unless the parent asks for a list. Never sound like a policy document, even when quoting one.
+Punctuation: plain and simple. Straight quotes and apostrophes only. No em dashes or en dashes: use a comma, a period, or the word "to" for ranges (6:30am to 6:00pm). No semicolons.
 
 Rules:
 - Answer only from the knowledge base below. Do not add facts, numbers or dates that are not in it.
@@ -78,6 +79,19 @@ function historyMessages(history: Message[]): ChatCompletionMessageParam[] {
   )
 }
 
+const PLAIN: Record<string, string> = {
+  '\u2018': "'",
+  '\u2019': "'",
+  '\u201C': '"',
+  '\u201D': '"',
+  '\u2026': '...',
+}
+
+/** Curly quotes and ellipses → ASCII. Character-for-character, so safe on any delta split. */
+export function plainPunctuation(text: string): string {
+  return text.replace(/[\u2018\u2019\u201C\u201D\u2026]/g, (ch) => PLAIN[ch])
+}
+
 export interface AnswerResult {
   text: string
   citations: string[]
@@ -121,7 +135,7 @@ export async function streamAnswer(
         started = true
         clearTimeout(timer)
       }
-      const visible = citations.push(delta)
+      const visible = citations.push(plainPunctuation(delta))
       if (visible) await onText(visible)
     }
 

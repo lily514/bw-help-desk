@@ -33,12 +33,12 @@ The demo must make three things obvious:
 ```
 Parent phone ─┐                          ┌─ Jev (TypeSafe)  → routing scores
               ├─ Cloudflare Worker ──────┤
-Operator ─────┘   Hono API under /api    ├─ Claude API      → streamed answer + citations
+Operator ─────┘   Hono API under /api    ├─ OpenRouter      → streamed answer + citations
 laptop            + static React app     └─ D1 (SQLite)     → parents, messages, requests, KB
 ```
 
 - **One Cloudflare Worker** serves the built React app as static assets and the API under `/api/*`. One deploy, one URL. Parent at `/`, operator at `/operator`.
-- **No retrieval step.** The whole knowledge base (about 3k tokens) goes in Claude's system prompt on every call, with prompt caching on that block.
+- **No retrieval step.** The whole knowledge base (about 3k tokens) goes in the model's system prompt on every call. The KB sits at the start of the prompt so the provider's automatic prompt caching can reuse it (OpenRouter passes OpenAI's prefix caching through; no cache markers needed).
 - **Streaming:** `POST /api/chat` returns Server-Sent Events, so the AI answer streams into the parent's own thread word by word.
 - **Cross-device updates = polling every 2 seconds.** The operator inbox and the parent thread poll for new messages and status changes. This is a deliberate simplification of the design's "SSE or WebSocket" suggestion: fanning live events out across devices on Workers needs Durable Objects, which isn't worth it for a demo. Two-second polling looks live. Note this in the README.
 - **Test mode is client-driven.** The operator UI loops through the scenarios by calling the normal API, so the Worker runs no background jobs.
@@ -51,8 +51,8 @@ laptop            + static React app     └─ D1 (SQLite)     → parents, mes
 | Frontend | React + TypeScript + Vite, React Router, plain CSS with the tokens in 4.1 as CSS variables |
 | API | Hono on Cloudflare Workers (`streamSSE` for chat) |
 | Database | Cloudflare D1 |
-| Answers | `@anthropic-ai/sdk`, model `claude-sonnet-5-5` |
-| Routing | `@typesafe-ai/sdk` (Jev), with a Claude fallback (see 3.2) |
+| Answers | OpenRouter chat completions via the `openai` SDK (`baseURL: https://openrouter.ai/api/v1`), model from `OPENROUTER_MODEL`, default `openai/gpt-6.1-sol` |
+| Routing | `@typesafe-ai/sdk` (Jev, uses the OpenRouter key), with an LLM fallback (see 3.2) |
 | Tests | Vitest for pure logic (route decision, KB parsing, citation parsing) |
 | Deploy | `wrangler deploy` to `*.workers.dev` |
 
@@ -70,8 +70,9 @@ laptop            + static React app     └─ D1 (SQLite)     → parents, mes
 ├─ worker/
 │  ├─ index.ts             Hono app, mounts routes, serves assets
 │  ├─ routes/              chat.ts, thread.ts, parents.ts, kb.ts, requests.ts, insights.ts, test.ts
-│  ├─ lib/answer.ts        streamed Claude answer + citation parsing
-│  ├─ lib/router.ts        Jev call → scores, topic, reason; Claude fallback
+│  ├─ lib/answer.ts        streamed answer (OpenRouter) + citation parsing
+│  ├─ lib/llm.ts           OpenRouter client + model config
+│  ├─ lib/router.ts        Jev call → scores, topic, reason; LLM fallback
 │  ├─ lib/decide.ts        pure: scores → route + suggested role
 │  └─ lib/db.ts            small typed query helpers
 ├─ src/
@@ -115,7 +116,7 @@ requests (                       -- one per parent message, including answered o
   route TEXT NOT NULL,           -- 'answered' | 'looped_in' | 'handed_off' | 'urgent'
   reason TEXT NOT NULL,          -- plain words: "About Maya's health today"
   scores TEXT NOT NULL,          -- JSON
-  router TEXT NOT NULL,          -- 'jev' | 'claude-fallback' | 'error'
+  router TEXT NOT NULL,          -- 'jev' | 'llm-fallback' | 'error'
   suggested_role TEXT NOT NULL,  -- 'Director' | 'Office' | 'Classroom teacher' | 'Kitchen'
   topic TEXT NOT NULL,           -- one of the 7 categories
   answerable INTEGER NOT NULL,   -- 1 if the KB covered it (drives "Couldn't answer")
@@ -183,7 +184,7 @@ No auth. Add a per-IP rate limit on `/api/chat` (about 20/minute) so a public UR
 
 ### 2.4 Secrets and config
 
-`ANTHROPIC_API_KEY` and `TYPESAFE_API_KEY` via `wrangler secret put`, and `.dev.vars` locally (git-ignored, with a `.dev.vars.example`). The app must run without `TYPESAFE_API_KEY`.
+One secret, `OPENROUTER_API_KEY`, used for both the answer model and Jev: `wrangler secret put` in production, `.dev.vars` locally (git-ignored, with a `.dev.vars.example`). Plain vars in `wrangler.toml`: `OPENROUTER_MODEL` (default `openai/gpt-6.1-sol`) and `ROUTER` (`jev` default, `llm` forces the fallback router).
 
 ---
 
@@ -199,7 +200,7 @@ No auth. Add a per-IP rate limit on `/api/chat` (about 20/minute) so a public UR
 6. For `handed_off`, send the fixed acknowledgement as the AI message: "This is one for Dana. I've sent it to her." For `urgent`, send a short calm acknowledgement such as "I've alerted the staff right now. Please call the center." No KB answer in either case.
 7. On any error or 10-second timeout: route becomes `handed_off`, send the same acknowledgement, set `router = 'error'`. Never a raw error.
 
-**Citation parsing while streaming:** the answer prompt tells Claude to write the answer, then end with one final line `[[cite: id1, id2]]`. The server forwards text deltas but holds back anything from `[[` onward, parses the ids, and drops ids that aren't in the KB. Unit-test the parser, including the marker split across two deltas.
+**Citation parsing while streaming:** the answer prompt tells the model to write the answer, then end with one final line `[[cite: id1, id2]]`. The server forwards text deltas but holds back anything from `[[` onward, parses the ids, and drops ids that aren't in the KB. Unit-test the parser, including the marker split across two deltas.
 
 ### 3.2 Router (`router.ts`)
 
@@ -218,7 +219,7 @@ One Jev call per message, all questions evaluated in parallel. The KB is passed 
 
 `reason` is a short plain-language string built from the strongest signal, e.g. "About Maya's health today," "Asks staff to do something," "Possible custody issue," "Not covered by your policies."
 
-**Fallback:** if `TYPESAFE_API_KEY` is unset or Jev errors, ask Claude for the same fields as JSON. Store which one ran in `requests.router`. Keep all Jev-specific code inside `router.ts`.
+**Fallback:** if `ROUTER=llm` or Jev errors, ask the OpenRouter model for the same fields as JSON (`response_format: json_object`). Store which one ran in `requests.router`. Keep all Jev-specific code inside `router.ts`.
 
 > The Jev SDK is new. Check its current docs for the exact client methods and question schema before writing `router.ts`.
 
@@ -237,14 +238,14 @@ Thresholds live in one exported constant; Phase 8 is where they get tuned. When 
 
 ### 3.4 Answer prompt (`answer.ts`)
 
-System prompt, in order:
+System prompt, in order. Everything that is the same on every call comes first, so prefix caching covers it; per-call details go last.
 
 1. Role: Maple Grove's front desk assistant. Warm, plain, short. Use the child's first name. No emoji. Never sound like a policy document, even when quoting one.
-2. Today's date and weekday, so "Wednesday" and "are you open Monday?" resolve correctly.
-3. Rules: answer only from the knowledge base; never give medical judgment; never say a staff action is done; if the KB doesn't fully cover it, say what it does cover and that the front desk will follow up.
-4. For `looped_in`: staff have been notified; say so naturally in one sentence.
-5. Output format: the answer, then a final line `[[cite: id1, id2]]` with every entry used.
-6. The full KB, one entry per block: `[id] Title (Category, updated date)` + body. Mark this block for prompt caching.
+2. Rules: answer only from the knowledge base; never give medical judgment; never say a staff action is done; if the KB doesn't fully cover it, say what it does cover and that the front desk will follow up.
+3. Output format: the answer, then a final line `[[cite: id1, id2]]` with every entry used.
+4. The full KB, one entry per block: `[id] Title (Category, updated date)` + body.
+5. Today's date and weekday, so "Wednesday" and "are you open Monday?" resolve correctly.
+6. The parent's and child's first names, and for `looped_in`: staff have been notified; say so naturally in one sentence.
 
 ---
 
@@ -401,15 +402,15 @@ Each phase lists its branch, rough timebox, scope and done check. Stay in scope;
 - **Done when:** `GET /api/kb` on the live URL returns all 29 entries.
 
 ### Phase 2 — `feature/answer-engine` (25 min)
-- `answer.ts`: prompt per 3.4, streaming, `[[cite: …]]` parsing with validation, prompt caching.
+- `answer.ts`: prompt per 3.4, streaming, `[[cite: …]]` parsing with validation, cache-friendly prompt order.
 - `POST /api/chat` as SSE (everything routed `answered` for now), `GET /api/thread/:parentId`.
 - Test: citation parser, including a marker split across deltas.
 - **Done when:** "Are you closed the Friday after Thanksgiving?" streams a yes citing `hours:holidays`, and "How much is tuition for the Twos room?" gives $270/week citing `fees:tuition`.
 
 ### Phase 3 — `feature/router` (30 min)
-- `router.ts` (Jev + Claude fallback), `decide.ts`, reasons, role mapping; wire into chat with requests, SSE `route` event, failure fallback, rate limit.
+- `router.ts` (Jev + LLM fallback), `decide.ts`, reasons, role mapping; wire into chat with requests, SSE `route` event, failure fallback, rate limit.
 - Tests for `decide()`: urgent beats everything; sensitive → handed off; low answerability → handed off; staff action or child health → looped in; plain factual → answered.
-- **Done when:** scenarios #1–#14 route as expected (or within one over-escalation) with and without a Jev key. Tag `v0.1`.
+- **Done when:** scenarios #1–#14 route as expected (or within one over-escalation) with `ROUTER=jev` and `ROUTER=llm`. Tag `v0.1`.
 
 ### Phase 4 — `feature/parent-ui` (35 min)
 - Sign in, create demo parent, thread, bubbles, streaming render, citation chips, policy sheet, status card, urgent banner, "Ask a person," 2-second polling.

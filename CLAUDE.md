@@ -21,5 +21,5 @@ Take-home prototype. `docs/PLAN.md` is the build spec and the source of truth; f
 - `worker/`: Hono API, mounted under `/api`. Bindings typed in `worker/env.ts`.
 - `src/parent`, `src/operator`, `src/shared`: React. Plain CSS using the variables in `src/shared/tokens.css`; no CSS framework.
 - Policy facts (hours, prices) come from the knowledge base (`data/handbook.md` → D1), never hard-coded in UI copy. Exceptions: PLAN.md §4.6.
-- Secrets in `.dev.vars` locally (see `.dev.vars.example`). The app must run without `TYPESAFE_API_KEY`.
+- Secrets in `.dev.vars` locally (see `.dev.vars.example`). One key, `OPENROUTER_API_KEY`, serves both the answer model and Jev. Model and router mode are `[vars]` in `wrangler.toml`.
 - Prettier: no semicolons, single quotes, width 100.

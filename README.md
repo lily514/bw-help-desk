@@ -11,7 +11,7 @@ Requires Node 22+.
 
 ```sh
 npm install
-cp .dev.vars.example .dev.vars   # add API keys
+cp .dev.vars.example .dev.vars   # add your OpenRouter key
 npm run dev                      # parent app at /, operator at /operator, API at /api
 ```
 

@@ -1,0 +1,64 @@
+Notes about requirements
+
+* Effort ~3 hours
+* Lightweight, mobile-friendly
+
+Parent experience (front desk):
+* Let a parent ask a question (text, voice, guided flow - your choice)
+* Provide an answer that is specific to the center and feels trustworthy
+* When uncertain or the question is sensitive, handle it gracefully
+
+Operator experience (control center):
+* Give staff a way to provide or edit the source of truth
+* Show what questions are being asked and where the system struggled
+* Make it easy to improve the system over time (even if it’s simple)
+
+* Response quality and trustworthiness > document parsing
+* Create synthetic data
+
+Scope choice: breadth, depth, or novelty
+
+Evaluation:
+Scope & completeness: Did you pick a realistic scope and finish it well?
+Persuasiveness: Would this excite a team to fund and build for real?
+User empathy: Does it reduce friction and make good decisions on behalf of users?
+Uniqueness: Any insight, craft, or implementation detail that stands out?
+
+------
+
+Questions/Decision points in Claude session
+
+* Language - python + react/typescript like my most recent hackathon project
+* Hosting - 
+    first thought - I don't want to use azure b/c it is connected to work accounts
+    github? 
+    cloudflare?
+* novelty - I would love to use Jev just for my own experience, we'll use it as a router 
+
+* Language - if I use cloudflare we could do all typescript, I've never done it before but it could help keep scope down?
+
+* Grounding data -
+I'm going to feed my daycare handbook to claude and have it create something based on that.
+Benefit is that I am familiar with their policies so I can act as a SME
+Don't need robust document
+
+* Do we need a RAG? If the document isn't too big for the context window you could skip the rag part
+context stuffing instead would work
+
+experience design - what does the parent see?
+fake login, free text chat, one ongoing thread
+
+routing design - 
+in my experience there are questions that need to go to admin and questions that need to go to the teacher
+probably out of scope. if time may add that layer for "novelty?" maybe just have the ai have a "forward to --- role ---" suggestion
+
+what should escalate - 
+see what jev and claude come up with to start and refine later
+
+testing
+make sure there is an easy way to automate asking/answering a question
+
+create handoff for claude design
+
+----
+

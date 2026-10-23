@@ -54,7 +54,7 @@ laptop            + static React app     └─ D1 (SQLite)     → parents, mes
 | Answers | OpenRouter chat completions via the `openai` SDK (`baseURL: https://openrouter.ai/api/v1`), model from `OPENROUTER_MODEL`, default `openai/gpt-6.1-sol` |
 | Routing | `@typesafe-ai/sdk` (Jev, uses the OpenRouter key), with an LLM fallback (see 3.2) |
 | Tests | Vitest for pure logic (route decision, KB parsing, citation parsing) |
-| Deploy | `wrangler deploy` to `*.workers.dev` |
+| Deploy | `npm run deploy` (build, then `wrangler deploy` with the generated config) to `*.workers.dev` |
 
 ### Repo layout
 
@@ -63,23 +63,28 @@ laptop            + static React app     └─ D1 (SQLite)     → parents, mes
 ├─ docs/PLAN.md            this file (docs/journal.md: decision notes)
 ├─ CLAUDE.md               "Follow PLAN.md, one phase per branch" + conventions
 ├─ README.md               setup, deploy, demo script
+├─ package.json            one package; vite.config.ts, wrangler.toml, tsconfig.*.json at the root
 ├─ data/handbook.md        knowledge base seed
 ├─ design-reference/       exported design HTML (optional)
-├─ migrations/             D1 SQL migrations
-├─ scripts/seed.ts         handbook.md + seed history → seed SQL
-├─ worker/
-│  ├─ index.ts             Hono app, mounts routes, serves assets
+├─ shared/types.ts         API types imported by both frontend and backend
+├─ backend/                the Cloudflare Worker
+│  ├─ index.ts             Hono app, mounts routes under /api
+│  ├─ env.ts               bindings and vars
 │  ├─ routes/              chat.ts, thread.ts, parents.ts, kb.ts, requests.ts, insights.ts, test.ts
 │  ├─ lib/answer.ts        streamed answer (OpenRouter) + citation parsing
 │  ├─ lib/llm.ts           OpenRouter client + model config
 │  ├─ lib/router.ts        Jev call → scores, topic, reason; LLM fallback
 │  ├─ lib/decide.ts        pure: scores → route + suggested role
-│  └─ lib/db.ts            small typed query helpers
-├─ src/
-│  ├─ parent/              SignIn, CreateParent, Thread, PolicySheet, StatusCard, UrgentBanner
-│  ├─ operator/            Shell, Inbox, Knowledge, KnowledgeEditor, Insights, TestMode, testScenarios.ts
-│  └─ shared/              api client, types, usePolling, tokens.css
-└─ test/                   decide.test.ts, seed.test.ts, citations.test.ts
+│  ├─ lib/db.ts            small typed query helpers
+│  ├─ migrations/          D1 SQL migrations
+│  ├─ scripts/seed.ts      handbook.md + seed history → seed SQL
+│  └─ test/                decide.test.ts, seed.test.ts, citations.test.ts
+└─ frontend/               the React app (Vite root)
+   ├─ index.html, public/
+   └─ src/
+      ├─ parent/           SignIn, CreateParent, Thread, PolicySheet, StatusCard, UrgentBanner
+      ├─ operator/         Shell, Inbox, Knowledge, KnowledgeEditor, Insights, TestMode, testScenarios.ts
+      └─ shared/           api client, usePolling, tokens.css
 ```
 
 ### 2.1 Data model (D1)
@@ -396,7 +401,7 @@ Each phase lists its branch, rough timebox, scope and done check. Stay in scope;
 
 ### Phase 1 — `feature/data-and-seed` (20 min)
 - Migration for all five tables.
-- `scripts/seed.ts`: parse `## [id] Title (updated YYYY-MM-DD)` sections into `knowledge_entries` with the category mapping; insert Sam and the seed history (2.2).
+- `backend/scripts/seed.ts`: parse `## [id] Title (updated YYYY-MM-DD)` sections into `knowledge_entries` with the category mapping; insert Sam and the seed history (2.2).
 - Parents and KB endpoints.
 - Test: the parser yields 29 entries with correct ids, categories and dates.
 - **Done when:** `GET /api/kb` on the live URL returns all 29 entries.

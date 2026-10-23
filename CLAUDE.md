@@ -13,6 +13,7 @@ Take-home prototype. `docs/PLAN.md` is the build spec and the source of truth; f
 ## Commands
 
 - `npm run dev`: Vite + the Worker (via `@cloudflare/vite-plugin`) at one URL, with local D1.
+- `npm run db:reset`: apply migrations and re-seed local D1 (`db:migrate`, `db:seed` separately). Seed SQL is built by `worker/lib/seed.ts` from `data/handbook.md` + `worker/lib/seed-data.ts`.
 - `npm test`: Vitest, pure logic only (`test/`).
 - `npm run deploy`: build + `wrangler deploy` (deferred for now).
 

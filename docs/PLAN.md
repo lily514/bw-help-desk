@@ -378,7 +378,7 @@ Center phone (765) 555-0142; "Dana usually replies within 2 hours on weekdays"; 
 - Small Conventional Commits: `feat(router): add decide() with thresholds`, `fix(parent): keep input above keyboard`, `test(answer): citation marker split across deltas`.
 - Before each PR: `npm run typecheck`, `npm test` and `npm run build` pass.
 - One PR per phase: summary, how to test, screenshots for UI phases, anything deferred.
-- Squash-merge, delete the branch, `wrangler deploy` from `main`, smoke-test the live URL.
+- Merge with `git merge --no-ff` (never squash; keep every commit), delete the branch, `wrangler deploy` from `main`, smoke-test the live URL.
 - Tags: `v0.1` after Phase 3 (working backend), `v1.0` at submission.
 
 ---

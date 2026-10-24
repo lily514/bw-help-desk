@@ -1,22 +1,79 @@
-import { Link } from 'react-router'
-import { Logo } from '../shared/Logo'
-import { useHealth } from '../shared/useHealth'
-import '../shared/shell.css'
+import { createContext, useCallback, useContext, useRef, useState } from 'react'
+import { Navigate, Route, Routes } from 'react-router'
+import type { InboxItem } from '../../../shared/types'
+import { api } from '../shared/api'
+import { usePolling } from '../shared/usePolling'
+import { Inbox } from './Inbox'
+import { newArrivals } from './model'
+import { Placeholder } from './Placeholder'
+import { Shell } from './Shell'
+import './operator.css'
 
+interface InboxState {
+  items: InboxItem[] | null
+  failed: boolean
+  /** Ids that arrived since the operator opened the page; they slide in and glow briefly. */
+  fresh: ReadonlySet<string>
+  /** Apply a change made here right away instead of waiting for the next poll. */
+  upsert: (item: InboxItem) => void
+}
+
+const InboxContext = createContext<InboxState | null>(null)
+
+export function useInbox(): InboxState {
+  const state = useContext(InboxContext)
+  if (!state) throw new Error('useInbox outside OperatorApp')
+  return state
+}
+
+const FRESH_MS = 4000
+
+/** Operator control center at /operator (PLAN.md 4.4). */
 export function OperatorApp() {
-  const health = useHealth()
+  const [items, setItems] = useState<InboxItem[] | null>(null)
+  const [failed, setFailed] = useState(false)
+  const [fresh, setFresh] = useState<ReadonlySet<string>>(new Set())
+  const known = useRef<Set<string> | null>(null)
+
+  const load = useCallback(async () => {
+    try {
+      const next = await api.inbox()
+      setFailed(false)
+      setItems(next)
+      if (known.current) {
+        const arrived = newArrivals(known.current, next)
+        if (arrived.length) {
+          setFresh((prev) => new Set([...prev, ...arrived]))
+          setTimeout(
+            () => setFresh((prev) => new Set([...prev].filter((id) => !arrived.includes(id)))),
+            FRESH_MS,
+          )
+        }
+      }
+      known.current = new Set(next.map((i) => i.id))
+    } catch {
+      setFailed(true)
+    }
+  }, [])
+
+  usePolling(load, 2000, true, true)
+
+  const upsert = useCallback((item: InboxItem) => {
+    setItems((prev) => prev?.map((i) => (i.id === item.id ? item : i)) ?? prev)
+  }, [])
 
   return (
-    <main className="placeholder">
-      <section className="placeholder-card">
-        <Logo />
-        <h1>Front desk control center</h1>
-        <p>Inbox, Knowledge and Insights arrive in Phases 5–7.</p>
-        <span className="placeholder-meta">API: {health}</span>
-        <Link className="placeholder-link" to="/">
-          Back to start
-        </Link>
-      </section>
-    </main>
+    <InboxContext.Provider value={{ items, failed, fresh, upsert }}>
+      <Routes>
+        <Route element={<Shell />}>
+          <Route index element={<Navigate to="inbox" replace />} />
+          <Route path="inbox" element={<Inbox />} />
+          <Route path="inbox/:requestId" element={<Inbox />} />
+          <Route path="knowledge/*" element={<Placeholder title="Knowledge" phase={6} />} />
+          <Route path="insights" element={<Placeholder title="Insights" phase={7} />} />
+          <Route path="*" element={<Navigate to="inbox" replace />} />
+        </Route>
+      </Routes>
+    </InboxContext.Provider>
   )
 }

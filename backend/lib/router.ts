@@ -3,7 +3,6 @@ import {
   SENSITIVE_KINDS,
   type Category,
   type KnowledgeEntry,
-  type Message,
   type Parent,
   type RouteScores,
   type RouterName,
@@ -39,8 +38,7 @@ const SENSITIVE_KIND_CRITERIA: Record<SensitiveKind, string> = {
   none: 'None of these',
 }
 
-// Every question is about `new_message`; earlier messages are context only, so an
-// urgent message earlier in the thread doesn't make the next question urgent.
+// Every question is about `new_message` (the router sees no conversation history).
 const NOUL_QUESTIONS = {
   is_urgent: {
     instructions:
@@ -56,12 +54,14 @@ const NOUL_QUESTIONS = {
   is_child_health_today: {
     instructions: "Is the new message about the parent's own child's health or symptoms today?",
   },
+  // Phrased around "how to": before Dana's reply is saved, the policies don't say how to add
+  // someone to the pickup list (#3 ~0.9); after, they do (#15 ~0.1). See decide.ts thresholds.
   needs_staff_action: {
     instructions:
-      "Given the center's policies, does a staff member need to do something about the new message, rather than the policies already telling the parent what to do?",
-    true: "Staff must do, approve, arrange or check something for this family, or the policies don't say how to do what the parent is asking",
+      "Do the center's policies leave out how to get done what the parent wants in the new message, so a staff member has to step in?",
+    true: "The policies don't explain how to do what the parent asks (for example how to add someone to a list), the parent is asking staff to schedule or arrange something (a tour, a meeting), or staff must help this family today",
     false:
-      "The center's policies already tell the parent what to do, or it is purely informational",
+      'The policies explain what the parent should do or send, or the message only asks for information the policies contain',
   },
   answerable_from_kb: {
     instructions:
@@ -77,8 +77,6 @@ export interface RouteInput {
   parent: Parent
   question: string
   kb: KnowledgeEntry[]
-  /** Recent thread messages, so "too" or "again" make sense. */
-  history: Message[]
   now: Date
 }
 
@@ -99,8 +97,12 @@ export async function routeQuestion(env: Env, input: RouteInput): Promise<Router
   return { scores: await llmScores(env, input), router: 'llm-fallback' }
 }
 
-/** The state both routers see. */
-export function routerState({ parent, question, kb, history, now }: RouteInput) {
+/**
+ * The state both routers see. Deliberately no conversation history: the route is a
+ * judgment about the new message against the current policies. With history, an
+ * earlier urgent or unresolved message leaked into the next one's scores.
+ */
+export function routerState({ parent, question, kb, now }: RouteInput) {
   return {
     center_policies: kb.map(formatEntry).join('\n\n'),
     today: now.toLocaleDateString('en-US', {
@@ -111,7 +113,6 @@ export function routerState({ parent, question, kb, history, now }: RouteInput) 
       year: 'numeric',
     }),
     parent: { name: parent.name, child: parent.childName, room: parent.room },
-    earlier_messages_for_context_only: history.slice(-4).map((m) => `${m.role}: ${m.text}`),
     new_message: question,
   }
 }

@@ -72,7 +72,7 @@ chat.post('/', async (c) => {
       messageId: question.id,
       isTest,
       createdAt: new Date().toISOString(),
-      ...(await routeOrHandOff(c.env, { parent, question: text, kb, history, now })),
+      ...(await routeOrHandOff(c.env, { parent, question: text, kb, now })),
     }
     await insertRequest(db, request)
     let route: Route = request.route

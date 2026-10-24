@@ -77,7 +77,10 @@ export interface ThreadResponse {
 /** Server-Sent Events from POST /api/chat. */
 export type ChatEvent =
   | { event: 'user'; data: { message: Message } }
-  | { event: 'route'; data: { requestId: string; route: Route; status: RequestStatus } }
+  | {
+      event: 'route'
+      data: { requestId: string; route: Route; status: RequestStatus; suggestedRole: StaffRole }
+    }
   | { event: 'delta'; data: { text: string } }
   | { event: 'done'; data: { message: Message; citations: string[] } }
 

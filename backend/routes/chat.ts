@@ -3,7 +3,7 @@ import { streamSSE } from 'hono/streaming'
 import type { ChatEvent, Message, Route } from '../../shared/types'
 import type { Env } from '../env'
 import { streamAnswer } from '../lib/answer'
-import { HANDED_OFF_ACK, URGENT_ACK } from '../lib/copy'
+import { HANDED_OFF_ACK, URGENT_ACK } from '../../shared/copy'
 import {
   getParent,
   insertMessage,
@@ -76,7 +76,10 @@ chat.post('/', async (c) => {
     }
     await insertRequest(db, request)
     let route: Route = request.route
-    await send({ event: 'route', data: { requestId, route, status: 'new' } })
+    await send({
+      event: 'route',
+      data: { requestId, route, status: 'new', suggestedRole: request.suggestedRole },
+    })
 
     let answer = {
       text: route === 'urgent' ? URGENT_ACK : HANDED_OFF_ACK,
@@ -93,7 +96,10 @@ chat.post('/', async (c) => {
         console.error('answer failed', err)
         route = 'handed_off'
         await markRequestHandedOff(db, requestId, 'The assistant could not answer')
-        await send({ event: 'route', data: { requestId, route, status: 'new' } })
+        await send({
+          event: 'route',
+          data: { requestId, route, status: 'new', suggestedRole: 'Director' },
+        })
       }
     }
 

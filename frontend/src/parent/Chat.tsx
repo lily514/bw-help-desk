@@ -31,6 +31,8 @@ export function Chat({ parentId, onSignOut }: { parentId: string; onSignOut: () 
   const [requests, setRequests] = useState<Map<string, ThreadRequest>>(new Map())
   const [titles, setTitles] = useState<Record<string, string>>({})
   const [loadError, setLoadError] = useState(false)
+  const [loadAttempt, setLoadAttempt] = useState(0)
+  const [offline, setOffline] = useState(false)
   const [pending, setPending] = useState<Pending | null>(null)
   const pendingRef = useRef<Pending | null>(null)
   const cursor = useRef<string | undefined>(undefined)
@@ -104,10 +106,23 @@ export function Chat({ parentId, onSignOut }: { parentId: string; onSignOut: () 
     return () => {
       cancelled = true
     }
-  }, [parentId, applyThread, signOut])
+  }, [parentId, applyThread, signOut, loadAttempt])
+
+  const retryLoad = () => {
+    setLoadError(false)
+    setLoadAttempt((n) => n + 1)
+  }
 
   usePolling(
-    async () => applyThread(await api.thread(parentId, cursor.current)),
+    async () => {
+      try {
+        applyThread(await api.thread(parentId, cursor.current))
+        setOffline(false)
+      } catch (err) {
+        setOffline(true)
+        throw err
+      }
+    },
     2000,
     parent !== null,
   )
@@ -281,10 +296,18 @@ export function Chat({ parentId, onSignOut }: { parentId: string; onSignOut: () 
         aria-live="polite"
         aria-busy={!!pending}
       >
-        {loadError && (
-          <p className="thread-note">
-            We couldn't load your messages. Check your connection and refresh.
+        {!parent && !loadError && (
+          <p className="thread-note" role="status">
+            Loading your messages…
           </p>
+        )}
+        {loadError && (
+          <div className="thread-note">
+            <p>We couldn't load your messages. Check your connection and try again.</p>
+            <button type="button" className="btn btn-secondary" onClick={retryLoad}>
+              Try again
+            </button>
+          </div>
         )}
         {parent && (
           <>
@@ -331,6 +354,11 @@ export function Chat({ parentId, onSignOut }: { parentId: string; onSignOut: () 
         )}
       </main>
 
+      {offline && !notice && (
+        <p className="composer-notice" role="status">
+          Reconnecting… New replies will show up once you're back online.
+        </p>
+      )}
       {notice && (
         <p className="composer-notice" role="alert">
           {notice}

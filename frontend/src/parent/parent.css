@@ -276,6 +276,10 @@
   color: var(--muted);
 }
 
+.thread-note p {
+  margin: 0 0 12px;
+}
+
 .divider {
   margin: 0;
   align-self: center;

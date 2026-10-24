@@ -136,3 +136,45 @@ export const LightbulbIcon = icon(
     <path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2.3h6c0-1.1.4-1.8 1-2.3A7 7 0 0 0 12 2z" />
   </>,
 )
+
+export const BookIcon = icon(
+  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />,
+)
+
+export const ChartIcon = icon(
+  <>
+    <path d="M3 3v18h18" />
+    <path d="M7 15v2" />
+    <path d="M12 10v7" />
+    <path d="M17 6v11" />
+  </>,
+)
+
+export const ExclamationIcon = icon(
+  <>
+    <path d="M12 8v5" />
+    <path d="M12 17h.01" />
+  </>,
+  { strokeWidth: 3 },
+)
+
+export const InfoIcon = icon(
+  <>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 16v-4" />
+    <path d="M12 8h.01" />
+  </>,
+)
+
+export const ChevronDownIcon = icon(<path d="m6 9 6 6 6-6" />)
+
+export const StarIcon = icon(
+  <path d="M12 3l1.9 5.8L20 9.3l-4.7 3.9 1.5 6L12 16l-4.8 3.2 1.5-6L4 9.3l6.1-.5z" />,
+)
+
+export const ForwardIcon = icon(
+  <>
+    <path d="m15 17 5-5-5-5" />
+    <path d="M4 18v-2a4 4 0 0 1 4-4h12" />
+  </>,
+)

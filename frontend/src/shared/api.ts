@@ -1,9 +1,14 @@
 import { readChatEvents } from '../../../shared/chatStream'
 import type {
   ChatEvent,
+  InboxItem,
   KnowledgeEntry,
   Parent,
+  ReplyResult,
+  RequestDetail,
   Room,
+  SaveAs,
+  StaffRole,
   ThreadRequest,
   ThreadResponse,
 } from '../../../shared/types'
@@ -48,6 +53,14 @@ export const api = {
     request<ThreadResponse>(`/api/thread/${enc(parentId)}${since ? `?since=${enc(since)}` : ''}`),
   askPerson: (requestId: string) =>
     post<ThreadRequest>(`/api/requests/${enc(requestId)}/ask-person`),
+
+  inbox: () => request<InboxItem[]>('/api/inbox'),
+  requestDetail: (id: string) => request<RequestDetail>(`/api/requests/${enc(id)}`),
+  markSeen: (id: string) => post<InboxItem>(`/api/requests/${enc(id)}/seen`),
+  forward: (id: string, role: StaffRole) =>
+    post<InboxItem>(`/api/requests/${enc(id)}/forward`, { role }),
+  reply: (id: string, text: string, saveAs?: SaveAs) =>
+    post<ReplyResult>(`/api/requests/${enc(id)}/reply`, { text, saveAs }),
 
   /** Streams POST /api/chat. Throws ApiError for non-2xx (e.g. 429 rate limit). */
   async *chat(parentId: string, text: string): AsyncGenerator<ChatEvent> {

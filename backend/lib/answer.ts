@@ -25,7 +25,7 @@ Output format: write the answer, then end with one final line listing every know
 [[cite: id1, id2]]
 Use the exact ids in square brackets from the knowledge base. If you used none, write [[cite: ]].`
 
-function formatEntry(e: KnowledgeEntry): string {
+export function formatEntry(e: KnowledgeEntry): string {
   return `[${e.id}] ${e.title} (${e.category}, updated ${e.updatedAt.slice(0, 10)})\n${e.body}`
 }
 
@@ -113,7 +113,7 @@ export async function streamAnswer(
   try {
     const stream = await openRouter(env).chat.completions.create(
       {
-        model: env.OPENROUTER_MODEL,
+        model: env.CHAT_COMPLETION_MODEL,
         stream: true,
         temperature: 0.3,
         max_tokens: 500,

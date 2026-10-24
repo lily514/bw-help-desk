@@ -25,5 +25,5 @@ Take-home prototype. `docs/PLAN.md` is the build spec and the source of truth; f
   - `shared/`: API types imported by both.
 - Frontend: `frontend/src/{parent,operator,shared}`. Plain CSS using the variables in `frontend/src/shared/tokens.css`; no CSS framework.
 - Policy facts (hours, prices) come from the knowledge base (`data/handbook.md` → D1), never hard-coded in UI copy. Exceptions: PLAN.md §4.6.
-- Secrets in `.dev.vars` locally (see `.dev.vars.example`). One key, `OPENROUTER_API_KEY`, serves both the answer model and Jev. Model and router mode are `[vars]` in `wrangler.toml`.
+- Secrets in `.dev.vars` locally (see `.dev.vars.example`). One key, `OPENROUTER_API_KEY`, serves answers, Jev and the fallback router. `CHAT_COMPLETION_MODEL`, `ROUTER_MODEL` and `ROUTER` are `[vars]` in `wrangler.toml`.
 - Prettier: no semicolons, single quotes, width 100.

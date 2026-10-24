@@ -7,6 +7,8 @@ import type {
   RequestStatus,
   Room,
   Route,
+  RouteScores,
+  RouterName,
   StaffRole,
   ThreadRequest,
 } from '../../shared/types'
@@ -226,4 +228,59 @@ export async function listThreadRequests(
     .bind(parentId, since ?? '')
     .all<RequestRow>()
   return results.map(toThreadRequest)
+}
+
+export interface NewRequest {
+  id: string
+  parentId: string
+  messageId: string
+  route: Route
+  reason: string
+  scores: RouteScores | null
+  router: RouterName
+  suggestedRole: StaffRole
+  topic: Category
+  answerable: boolean
+  isTest: boolean
+  createdAt: string
+}
+
+export async function insertRequest(db: D1Database, r: NewRequest): Promise<void> {
+  await db
+    .prepare(
+      `INSERT INTO requests
+         (id, parent_id, message_id, route, reason, scores, router, suggested_role, topic,
+          answerable, status, forwarded_to, is_test, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'new', NULL, ?, ?, ?)`,
+    )
+    .bind(
+      r.id,
+      r.parentId,
+      r.messageId,
+      r.route,
+      r.reason,
+      JSON.stringify(r.scores ?? {}),
+      r.router,
+      r.suggestedRole,
+      r.topic,
+      r.answerable ? 1 : 0,
+      r.isTest ? 1 : 0,
+      r.createdAt,
+      r.createdAt,
+    )
+    .run()
+}
+
+/** Used when answering fails after routing: the request becomes a hand-off. */
+export async function markRequestHandedOff(
+  db: D1Database,
+  id: string,
+  reason: string,
+): Promise<void> {
+  await db
+    .prepare(
+      `UPDATE requests SET route = 'handed_off', router = 'error', reason = ?, suggested_role = 'Director', updated_at = ? WHERE id = ?`,
+    )
+    .bind(reason, new Date().toISOString(), id)
+    .run()
 }

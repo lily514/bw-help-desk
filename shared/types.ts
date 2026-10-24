@@ -81,9 +81,22 @@ export type ChatEvent =
   | { event: 'delta'; data: { text: string } }
   | { event: 'done'; data: { message: Message; citations: string[] } }
 
-/** Router output, stored as JSON on each request. Values are 0–1 except topic. */
+export const SENSITIVE_KINDS = [
+  'custody',
+  'complaint',
+  'behavior',
+  'billing',
+  'special_needs',
+  'medical',
+  'none',
+] as const
+export type SensitiveKind = (typeof SENSITIVE_KINDS)[number]
+
+/** Router output, stored as JSON on each request. Values are 0–1 except topic and sensitive_kind. */
 export interface RouteScores {
   topic: Category
+  /** Which kind of sensitive topic, for the operator's "why" line. Absent in seed data. */
+  sensitive_kind?: SensitiveKind
   is_urgent: number
   is_sensitive: number
   is_child_health_today: number

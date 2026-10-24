@@ -51,8 +51,8 @@ laptop            + static React app     └─ D1 (SQLite)     → parents, mes
 | Frontend | React + TypeScript + Vite, React Router, plain CSS with the tokens in 4.1 as CSS variables |
 | API | Hono on Cloudflare Workers (`streamSSE` for chat) |
 | Database | Cloudflare D1 |
-| Answers | OpenRouter chat completions via the `openai` SDK (`baseURL: https://openrouter.ai/api/v1`), model from `OPENROUTER_MODEL`, default `openai/gpt-6.1-sol` |
-| Routing | `@typesafe-ai/sdk` (Jev, uses the OpenRouter key), with an LLM fallback (see 3.2) |
+| Answers | OpenRouter chat completions via the `openai` SDK (`baseURL: https://openrouter.ai/api/v1`), model from `CHAT_COMPLETION_MODEL`, default `openai/gpt-6.1-sol` |
+| Routing | Jev via OpenRouter's decisions endpoint (`POST https://openrouter.ai/api/alpha/decisions`, plain `fetch`), model from `ROUTER_MODEL`, default `typesafe/jev-1.14`; chat-model fallback (see 3.2) |
 | Tests | Vitest for pure logic (route decision, KB parsing, citation parsing) |
 | Deploy | `npm run deploy` (build, then `wrangler deploy` with the generated config) to `*.workers.dev` |
 
@@ -189,7 +189,7 @@ No auth. Add a per-IP rate limit on `/api/chat` (about 20/minute) so a public UR
 
 ### 2.4 Secrets and config
 
-One secret, `OPENROUTER_API_KEY`, used for both the answer model and Jev: `wrangler secret put` in production, `.dev.vars` locally (git-ignored, with a `.dev.vars.example`). Plain vars in `wrangler.toml`: `OPENROUTER_MODEL` (default `openai/gpt-6.1-sol`) and `ROUTER` (`jev` default, `llm` forces the fallback router).
+One secret, `OPENROUTER_API_KEY`, used for answers, Jev and the fallback router: `wrangler secret put` in production, `.dev.vars` locally (git-ignored, with a `.dev.vars.example`). Plain vars in `wrangler.toml`: `CHAT_COMPLETION_MODEL` (default `openai/gpt-6.1-sol`), `ROUTER_MODEL` (default `typesafe/jev-1.14`) and `ROUTER` (`jev` default, `llm` forces the fallback router).
 
 ---
 
@@ -224,9 +224,9 @@ One Jev call per message, all questions evaluated in parallel. The KB is passed 
 
 `reason` is a short plain-language string built from the strongest signal, e.g. "About Maya's health today," "Asks staff to do something," "Possible custody issue," "Not covered by your policies."
 
-**Fallback:** if `ROUTER=llm` or Jev errors, ask the OpenRouter model for the same fields as JSON (`response_format: json_object`). Store which one ran in `requests.router`. Keep all Jev-specific code inside `router.ts`.
+**Fallback:** if `ROUTER=llm` or Jev errors, ask `CHAT_COMPLETION_MODEL` for the same fields as JSON (`response_format: json_object`). Store which one ran in `requests.router`. Keep all Jev-specific code inside `router.ts`.
 
-> The Jev SDK is new. Check its current docs for the exact client methods and question schema before writing `router.ts`.
+> Jev is called through OpenRouter, not `@typesafe-ai/sdk` (which needs a separate TypeSafe key). Jev models are "decisions" models: chat/completions rejects them. The decisions endpoint takes `{ model, state, questions }`, where each question is `{ type: 'noul' | 'choice', instructions, criteria }`, and returns `answers.<key>.noul` (0–1) or `.choice`. It's an alpha endpoint, hence the fallback.
 
 ### 3.3 Decision (`decide.ts`, pure, unit-tested)
 

@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "db:migrate": "wrangler d1 migrations apply maple-grove --local",
     "db:seed": "tsx backend/scripts/seed.ts",
-    "db:reset": "npm run db:migrate && npm run db:seed"
+    "db:reset": "npm run db:migrate && npm run db:seed",
+    "check:routes": "tsx backend/scripts/check-routes.ts"
   },
   "dependencies": {
     "hono": "^4.13.13",

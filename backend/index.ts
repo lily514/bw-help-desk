@@ -6,6 +6,7 @@ import { insights } from './routes/insights'
 import { kb } from './routes/kb'
 import { parents } from './routes/parents'
 import { requests } from './routes/requests'
+import { test } from './routes/test'
 import { thread } from './routes/thread'
 
 // Static assets (the React app) are served by Workers Assets; only /api/* reaches this app.
@@ -19,6 +20,7 @@ app.route('/thread', thread)
 app.route('/requests', requests)
 app.route('/inbox', inbox)
 app.route('/insights', insights)
+app.route('/test', test)
 
 app.notFound((c) => c.json({ error: 'Not found' }, 404))
 

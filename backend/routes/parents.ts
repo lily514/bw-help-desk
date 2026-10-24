@@ -11,9 +11,17 @@ parents.get('/:id', async (c) => {
   return parent ? c.json(parent) : c.json({ error: 'Parent not found' }, 404)
 })
 
-/** Evaluators create their own demo parent (is_demo = 1, cleared on Reset). */
+/**
+ * Evaluators create their own demo parent (is_demo = 1, cleared on Reset). Test mode
+ * creates its scripted parents with `isTest`, so their requests are excluded from Insights.
+ */
 parents.post('/', async (c) => {
-  const body = await c.req.json<{ name?: unknown; childName?: unknown; room?: unknown }>()
+  const body = await c.req.json<{
+    name?: unknown
+    childName?: unknown
+    room?: unknown
+    isTest?: unknown
+  }>()
   const name = typeof body.name === 'string' ? body.name.trim() : ''
   const childName = typeof body.childName === 'string' ? body.childName.trim() : ''
   const room = body.room as Room
@@ -28,7 +36,7 @@ parents.post('/', async (c) => {
     childName: childName.slice(0, 40),
     room,
     isDemo: true,
-    isTest: false,
+    isTest: body.isTest === true,
     createdAt: new Date().toISOString(),
   }
   await insertParent(c.env.DB, parent)

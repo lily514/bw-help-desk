@@ -3,6 +3,7 @@ import type { Env } from './env'
 import { chat } from './routes/chat'
 import { kb } from './routes/kb'
 import { parents } from './routes/parents'
+import { requests } from './routes/requests'
 import { thread } from './routes/thread'
 
 // Static assets (the React app) are served by Workers Assets; only /api/* reaches this app.
@@ -13,6 +14,7 @@ app.route('/parents', parents)
 app.route('/kb', kb)
 app.route('/chat', chat)
 app.route('/thread', thread)
+app.route('/requests', requests)
 
 app.notFound((c) => c.json({ error: 'Not found' }, 404))
 

@@ -284,3 +284,19 @@ export async function markRequestHandedOff(
     .bind(reason, new Date().toISOString(), id)
     .run()
 }
+
+export async function getRequestRow(db: D1Database, id: string): Promise<RequestRow | null> {
+  return db.prepare('SELECT * FROM requests WHERE id = ?').bind(id).first<RequestRow>()
+}
+
+/** "Ask a person" on an AI answer: the answered request becomes a hand-off to Dana. */
+export async function escalateToPerson(db: D1Database, id: string): Promise<void> {
+  await db
+    .prepare(
+      `UPDATE requests SET route = 'handed_off', reason = 'Parent asked for a person',
+         suggested_role = 'Director', status = 'new', updated_at = ?
+       WHERE id = ? AND route = 'answered'`,
+    )
+    .bind(new Date().toISOString(), id)
+    .run()
+}

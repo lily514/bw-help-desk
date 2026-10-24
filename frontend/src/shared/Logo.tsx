@@ -1,12 +1,14 @@
-export function Logo({ size = 36 }: { size?: number }) {
+import { SproutIcon } from './icons'
+
+/** Sprout in a green rounded square. Corner radius scales with size, as in the design. */
+export function Logo({ size = 40 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-      <rect width="32" height="32" rx="8" fill="var(--accent)" />
-      <g fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M16 25v-9" />
-        <path d="M16 16c0-4 3-7 7-7 0 4-3 7-7 7z" />
-        <path d="M16 19c0-3-2.5-5.5-6-5.5 0 3 2.5 5.5 6 5.5z" />
-      </g>
-    </svg>
+    <span
+      className="logo"
+      style={{ width: size, height: size, borderRadius: Math.round(size * 0.33) }}
+      aria-hidden="true"
+    >
+      <SproutIcon size={Math.round(size * 0.52)} />
+    </span>
   )
 }

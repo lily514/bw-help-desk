@@ -1,0 +1,137 @@
+/* Shared building blocks for both apps. */
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--accent);
+  color: #fff;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--tap);
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-button);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  color: #fff;
+}
+
+.btn-secondary {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.btn-block {
+  width: 100%;
+  border-radius: var(--radius-cta);
+}
+
+.badge-evaluator {
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: var(--test);
+  color: var(--test-text);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent-tint-border);
+  outline-offset: 2px;
+}
+
+/* Knowledge-base bodies (Markdown.tsx). */
+.md {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.md p {
+  margin: 0;
+}
+
+.md ul {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.md ul ul {
+  margin-top: 6px;
+}
+
+.md-table {
+  border: 1px solid var(--divider);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.md table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.md th,
+.md td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--divider);
+}
+
+.md tr:last-child td {
+  border-bottom: none;
+}
+
+.md th {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  background: #f8faf8;
+}
+
+.md td:last-child {
+  white-space: nowrap;
+}

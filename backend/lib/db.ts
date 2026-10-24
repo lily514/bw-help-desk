@@ -121,6 +121,18 @@ export async function getKnowledge(db: D1Database, id: string): Promise<Knowledg
   return row ? toKnowledgeEntry(row) : null
 }
 
+/** Name of the parent whose question an entry was saved from, for the editor's meta line. */
+export async function getSourceParentName(
+  db: D1Database,
+  requestId: string,
+): Promise<string | null> {
+  const row = await db
+    .prepare('SELECT p.name FROM requests r JOIN parents p ON p.id = r.parent_id WHERE r.id = ?')
+    .bind(requestId)
+    .first<{ name: string }>()
+  return row?.name ?? null
+}
+
 export async function insertKnowledge(db: D1Database, e: KnowledgeEntry): Promise<void> {
   await db
     .prepare(

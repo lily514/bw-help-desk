@@ -1,9 +1,15 @@
 import { Hono } from 'hono'
-import { CATEGORIES, type Category, type KnowledgeEntry } from '../../shared/types'
+import {
+  CATEGORIES,
+  type Category,
+  type KnowledgeEntry,
+  type KnowledgeEntryDetail,
+} from '../../shared/types'
 import type { Env } from '../env'
 import {
   createEntryId,
   getKnowledge,
+  getSourceParentName,
   insertKnowledge,
   listKnowledge,
   updateKnowledge,
@@ -29,7 +35,12 @@ kb.get('/', async (c) => c.json(await listKnowledge(c.env.DB)))
 
 kb.get('/:id', async (c) => {
   const entry = await getKnowledge(c.env.DB, c.req.param('id'))
-  return entry ? c.json(entry) : c.json({ error: 'Entry not found' }, 404)
+  if (!entry) return c.json({ error: 'Entry not found' }, 404)
+  const sourceParentName = entry.sourceRequestId
+    ? await getSourceParentName(c.env.DB, entry.sourceRequestId)
+    : null
+  const detail: KnowledgeEntryDetail = { ...entry, sourceParentName }
+  return c.json(detail)
 })
 
 kb.post('/', async (c) => {

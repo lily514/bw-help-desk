@@ -4,6 +4,8 @@ import type { InboxItem } from '../../../shared/types'
 import { api } from '../shared/api'
 import { usePolling } from '../shared/usePolling'
 import { Inbox } from './Inbox'
+import { Knowledge } from './Knowledge'
+import { KnowledgeEditorPage } from './KnowledgeEditor'
 import { newArrivals } from './model'
 import { Placeholder } from './Placeholder'
 import { Shell } from './Shell'
@@ -69,7 +71,8 @@ export function OperatorApp() {
           <Route index element={<Navigate to="inbox" replace />} />
           <Route path="inbox" element={<Inbox />} />
           <Route path="inbox/:requestId" element={<Inbox />} />
-          <Route path="knowledge/*" element={<Placeholder title="Knowledge" phase={6} />} />
+          <Route path="knowledge" element={<Knowledge />} />
+          <Route path="knowledge/:entryId" element={<KnowledgeEditorPage />} />
           <Route path="insights" element={<Placeholder title="Insights" phase={7} />} />
           <Route path="*" element={<Navigate to="inbox" replace />} />
         </Route>

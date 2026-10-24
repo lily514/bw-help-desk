@@ -39,6 +39,11 @@ export interface KnowledgeEntry {
   updatedAt: string
 }
 
+/** GET /api/kb/:id: the entry plus who it was saved from, for the editor's meta line. */
+export interface KnowledgeEntryDetail extends KnowledgeEntry {
+  sourceParentName: string | null
+}
+
 export type MessageRole = 'parent' | 'ai' | 'staff'
 
 export interface Message {

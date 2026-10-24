@@ -1,5 +1,13 @@
-import { useEffect, useState, type FormEvent } from 'react'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
+import {
+  Link,
+  useBeforeUnload,
+  useBlocker,
+  useNavigate,
+  useParams,
+  useSearchParams,
+  type Blocker,
+} from 'react-router'
 import { CATEGORIES, type Category, type KnowledgeEntryDetail } from '../../../shared/types'
 import { api, ApiError } from '../shared/api'
 import { formatDate } from '../shared/format'
@@ -7,6 +15,12 @@ import { FromParentTag } from './Knowledge'
 
 function isCategory(value: string | null): value is Category {
   return CATEGORIES.includes(value as Category)
+}
+
+interface Fields {
+  title: string
+  category: Category
+  body: string
 }
 
 /** Remount per entry so switching entries (or to a new one) starts from fresh state. */
@@ -29,14 +43,39 @@ function KnowledgeEditor() {
 
   const [entry, setEntry] = useState<KnowledgeEntryDetail | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [title, setTitle] = useState(isNew ? (search.get('title') ?? '') : '')
-  const [category, setCategory] = useState<Category>(() => {
+  // What the form held when it opened; any difference counts as unsaved changes.
+  const [initial, setInitial] = useState<Fields | null>(() => {
+    if (!isNew) return null
     const fromQuery = search.get('category')
-    return isCategory(fromQuery) ? fromQuery : CATEGORIES[0]
+    return {
+      title: search.get('title') ?? '',
+      category: isCategory(fromQuery) ? fromQuery : CATEGORIES[0],
+      body: '',
+    }
   })
+  const [title, setTitle] = useState(initial?.title ?? '')
+  const [category, setCategory] = useState<Category>(initial?.category ?? CATEGORIES[0])
   const [body, setBody] = useState('')
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+
+  const dirty =
+    initial !== null &&
+    (title !== initial.title || category !== initial.category || body !== initial.body)
+  // Set just before navigating away after a successful save, so the blocker lets it through.
+  const saved = useRef(false)
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      dirty && !saved.current && currentLocation.pathname !== nextLocation.pathname,
+  )
+  useBeforeUnload(
+    useCallback(
+      (e: BeforeUnloadEvent) => {
+        if (dirty && !saved.current) e.preventDefault()
+      },
+      [dirty],
+    ),
+  )
 
   useEffect(() => {
     if (isNew || !entryId) return
@@ -46,6 +85,7 @@ function KnowledgeEditor() {
       .then((e) => {
         if (cancelled) return
         setEntry(e)
+        setInitial({ title: e.title, category: e.category, body: e.body })
         setTitle(e.title)
         setCategory(e.category)
         setBody(e.body)
@@ -75,6 +115,7 @@ function KnowledgeEditor() {
       const input = { title, category, body }
       if (isNew) await api.createKnowledge(input)
       else await api.updateKnowledge(entryId!, input)
+      saved.current = true
       navigate('/operator/knowledge')
     } catch {
       setSaveError("Couldn't save. Try again.")
@@ -169,6 +210,48 @@ function KnowledgeEditor() {
           </button>
         </div>
       </form>
+      {blocker.state === 'blocked' && <LeaveDialog blocker={blocker} />}
+    </div>
+  )
+}
+
+/** Asks before leaving the editor with unsaved changes. */
+function LeaveDialog({ blocker }: { blocker: Blocker }) {
+  const stayRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    stayRef.current?.focus()
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && blocker.reset?.()
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [blocker])
+
+  return (
+    <div className="dialog-layer">
+      <div className="dialog-scrim" onClick={() => blocker.reset?.()} aria-hidden="true" />
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="leave-title"
+        aria-describedby="leave-text"
+        className="dialog"
+      >
+        <h2 id="leave-title">Discard your changes?</h2>
+        <p id="leave-text">You've edited this entry but haven't saved it.</p>
+        <div className="dialog-actions">
+          <button
+            ref={stayRef}
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => blocker.reset?.()}
+          >
+            Keep editing
+          </button>
+          <button type="button" className="btn btn-danger" onClick={() => blocker.proceed?.()}>
+            Discard changes
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

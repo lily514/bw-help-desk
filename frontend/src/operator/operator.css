@@ -1013,6 +1013,63 @@
   flex: 1;
 }
 
+/* Unsaved-changes dialog */
+
+.dialog-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.dialog-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(30, 43, 37, 0.4);
+}
+
+.dialog {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 12px 40px rgba(30, 43, 37, 0.18);
+}
+
+.dialog h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.dialog p {
+  margin: 0 0 20px;
+  color: var(--text-2);
+}
+
+.dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-danger {
+  background: var(--unsafe);
+  color: #fff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #8f1e18;
+  color: #fff;
+}
+
 /* One pane at a time below ~1100px: list, or detail with a back link. */
 @media (max-width: 1100px) {
   .inbox {

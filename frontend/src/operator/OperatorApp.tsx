@@ -9,6 +9,8 @@ import { Knowledge } from './Knowledge'
 import { KnowledgeEditorPage } from './KnowledgeEditor'
 import { newArrivals } from './model'
 import { Shell } from './Shell'
+import { TestModeProvider } from './TestMode'
+import { TestResults } from './TestResults'
 import './operator.css'
 
 interface InboxState {
@@ -66,17 +68,20 @@ export function OperatorApp() {
 
   return (
     <InboxContext.Provider value={{ items, failed, fresh, upsert }}>
-      <Routes>
-        <Route element={<Shell />}>
-          <Route index element={<Navigate to="inbox" replace />} />
-          <Route path="inbox" element={<Inbox />} />
-          <Route path="inbox/:requestId" element={<Inbox />} />
-          <Route path="knowledge" element={<Knowledge />} />
-          <Route path="knowledge/:entryId" element={<KnowledgeEditorPage />} />
-          <Route path="insights" element={<Insights />} />
-          <Route path="*" element={<Navigate to="inbox" replace />} />
-        </Route>
-      </Routes>
+      <TestModeProvider>
+        <Routes>
+          <Route element={<Shell />}>
+            <Route index element={<Navigate to="inbox" replace />} />
+            <Route path="inbox" element={<Inbox />} />
+            <Route path="inbox/:requestId" element={<Inbox />} />
+            <Route path="knowledge" element={<Knowledge />} />
+            <Route path="knowledge/:entryId" element={<KnowledgeEditorPage />} />
+            <Route path="insights" element={<Insights />} />
+            <Route path="test" element={<TestResults />} />
+            <Route path="*" element={<Navigate to="inbox" replace />} />
+          </Route>
+        </Routes>
+      </TestModeProvider>
     </InboxContext.Provider>
   )
 }

@@ -1,14 +1,22 @@
 // Sends test scenarios to a running dev server and prints expected vs actual routes.
-// Usage: npm run check:routes                  (scenarios 1–14 against http://localhost:5173)
+// Usage: npm run check:routes                  (all but #15 against http://localhost:5173)
 //        npm run check:routes -- 1 5 15        (only these scenarios)
+// #15 is skipped by default: it only routes to AI answers after #3's reply is saved.
 //        BASE_URL=https://… npm run check:routes
 // Messages are sent with isTest, but they do land in the database: run `npm run db:seed` after.
 import type { Parent, Route } from '../../shared/types'
-import { TEST_PARENTS, TEST_SCENARIOS, type TestScenario } from '../../shared/testScenarios'
+import {
+  LEARN_SCENARIO,
+  TEST_PARENTS,
+  TEST_SCENARIOS,
+  type TestScenario,
+} from '../../shared/testScenarios'
 
 const BASE_URL = process.env.BASE_URL ?? 'http://localhost:5173'
 const only = process.argv.slice(2).map(Number).filter(Boolean)
-const scenarios = TEST_SCENARIOS.filter((s) => (only.length ? only.includes(s.num) : s.num <= 14))
+const scenarios = TEST_SCENARIOS.filter((s) =>
+  only.length ? only.includes(s.num) : s.num !== LEARN_SCENARIO,
+)
 
 const parentIds = new Map<TestScenario['child'], string>([['Maya', 'sam-rivera']])
 

@@ -308,6 +308,21 @@
     var(--radius-bubble);
 }
 
+/* Sent by test mode's automated parent (PLAN.md 4.5). */
+.bubble-test-tag {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--test);
+  color: var(--test-text);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: 1px;
+}
+
 .bubble-ai {
   align-self: flex-start;
   max-width: min(310px, 88%);

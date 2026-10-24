@@ -3,7 +3,12 @@ import { formatTime, initials } from '../shared/format'
 import { FileIcon } from '../shared/icons'
 
 export function ParentBubble({ message }: { message: Message }) {
-  return <div className="bubble bubble-parent">{message.text}</div>
+  return (
+    <div className="bubble bubble-parent">
+      {message.isTest && <span className="bubble-test-tag">Test</span>}
+      {message.text}
+    </div>
+  )
 }
 
 /** Plain AI bubble (greeting, acknowledgements). */

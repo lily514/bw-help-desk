@@ -4,6 +4,7 @@ import { initials } from '../shared/format'
 import { BookIcon, ChartIcon, ChevronLeftIcon, InboxIcon, PlusIcon } from '../shared/icons'
 import { Logo } from '../shared/Logo'
 import { useInbox } from './OperatorApp'
+import { TestBar, TestModeSwitch } from './TestMode'
 
 const NAV = [
   { to: 'inbox', label: 'Inbox', Icon: InboxIcon },
@@ -17,6 +18,7 @@ export function Shell() {
   const newCount = items?.filter((i) => i.status === 'new').length ?? 0
   const { pathname } = useLocation()
   const section = NAV.find((n) => pathname.startsWith(`/operator/${n.to}`))
+  const title = pathname.startsWith('/operator/test') ? 'Test run results' : section?.label
 
   const links = NAV.map(({ to, label, Icon }) => (
     <NavLink key={to} to={`/operator/${to}`} className="nav-link">
@@ -54,8 +56,18 @@ export function Shell() {
 
       <div className="operator-main">
         <header className="operator-header">
-          <HeaderContent pathname={pathname} fallback={section?.label ?? 'Inbox'} />
+          <HeaderTitle pathname={pathname} fallback={title ?? 'Inbox'} />
+          <div className="header-actions">
+            {/^\/operator\/knowledge\/?$/.test(pathname) && (
+              <Link to="/operator/knowledge/new" className="btn btn-primary">
+                <PlusIcon size={16} />
+                New entry
+              </Link>
+            )}
+            <TestModeSwitch />
+          </div>
         </header>
+        <TestBar />
         <Outlet />
       </div>
 
@@ -66,8 +78,8 @@ export function Shell() {
   )
 }
 
-/** Page title, plus the Knowledge pages' breadcrumb and "New entry" button. */
-function HeaderContent({ pathname, fallback }: { pathname: string; fallback: string }) {
+/** Page title, or the Knowledge editor's breadcrumb. */
+function HeaderTitle({ pathname, fallback }: { pathname: string; fallback: string }) {
   const editing = pathname.match(/^\/operator\/knowledge\/(.+)$/)
   if (editing) {
     return (
@@ -81,17 +93,6 @@ function HeaderContent({ pathname, fallback }: { pathname: string; fallback: str
         </span>
         <h1>{editing[1] === 'new' ? 'New entry' : 'Edit entry'}</h1>
       </div>
-    )
-  }
-  if (pathname.startsWith('/operator/knowledge')) {
-    return (
-      <>
-        <h1>Knowledge</h1>
-        <Link to="/operator/knowledge/new" className="btn btn-primary">
-          <PlusIcon size={16} />
-          New entry
-        </Link>
-      </>
     )
   }
   if (pathname.startsWith('/operator/insights')) {

@@ -191,3 +191,26 @@ export const ChatSquareIcon = icon(
   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />,
   { strokeWidth: 2.4 },
 )
+
+// Test mode (design reference screen 10). Play and pause are filled.
+export const PlayIcon = icon(<path d="M7 4v16l13-8z" fill="currentColor" stroke="none" />)
+
+export const PauseIcon = icon(
+  <path d="M6 4h4v16H6zM14 4h4v16h-4z" fill="currentColor" stroke="none" />,
+)
+
+export const ResetIcon = icon(
+  <>
+    <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+    <path d="M3 3v5h5" />
+  </>,
+  { strokeWidth: 2.2 },
+)
+
+export const ShieldCheckIcon = icon(
+  <>
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    <path d="m9 12 2 2 4-4" />
+  </>,
+  { strokeWidth: 2.4 },
+)

@@ -3,6 +3,7 @@ import type {
   ChatEvent,
   InboxItem,
   KnowledgeEntry,
+  KnowledgeEntryDetail,
   Parent,
   ReplyResult,
   RequestDetail,
@@ -31,15 +32,21 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>
 }
 
-function post<T>(path: string, body?: unknown): Promise<T> {
+function send<T>(method: 'POST' | 'PUT', path: string, body?: unknown): Promise<T> {
   return request<T>(path, {
-    method: 'POST',
+    method,
     headers: { 'Content-Type': 'application/json' },
     body: body === undefined ? undefined : JSON.stringify(body),
   })
 }
 
+function post<T>(path: string, body?: unknown): Promise<T> {
+  return send<T>('POST', path, body)
+}
+
 const enc = encodeURIComponent
+
+export type KnowledgeInput = Pick<KnowledgeEntry, 'title' | 'category' | 'body'>
 
 export const api = {
   getParent: (id: string) => request<Parent>(`/api/parents/${enc(id)}`),
@@ -47,7 +54,10 @@ export const api = {
     post<Parent>('/api/parents', input),
 
   listKnowledge: () => request<KnowledgeEntry[]>('/api/kb'),
-  getKnowledge: (id: string) => request<KnowledgeEntry>(`/api/kb/${enc(id)}`),
+  getKnowledge: (id: string) => request<KnowledgeEntryDetail>(`/api/kb/${enc(id)}`),
+  createKnowledge: (input: KnowledgeInput) => send<KnowledgeEntry>('POST', '/api/kb', input),
+  updateKnowledge: (id: string, input: KnowledgeInput) =>
+    send<KnowledgeEntry>('PUT', `/api/kb/${enc(id)}`, input),
 
   thread: (parentId: string, since?: string) =>
     request<ThreadResponse>(`/api/thread/${enc(parentId)}${since ? `?since=${enc(since)}` : ''}`),

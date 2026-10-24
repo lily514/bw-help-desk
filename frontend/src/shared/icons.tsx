@@ -178,3 +178,16 @@ export const ForwardIcon = icon(
     <path d="M4 18v-2a4 4 0 0 1 4-4h12" />
   </>,
 )
+
+export const PlusIcon = icon(
+  <>
+    <path d="M12 5v14" />
+    <path d="M5 12h14" />
+  </>,
+  { strokeWidth: 2.4 },
+)
+
+export const ChatSquareIcon = icon(
+  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />,
+  { strokeWidth: 2.4 },
+)

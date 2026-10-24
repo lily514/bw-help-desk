@@ -1,7 +1,7 @@
-import { NavLink, Outlet, useLocation } from 'react-router'
+import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { DIRECTOR } from '../../../shared/copy'
 import { initials } from '../shared/format'
-import { BookIcon, ChartIcon, InboxIcon } from '../shared/icons'
+import { BookIcon, ChartIcon, ChevronLeftIcon, InboxIcon, PlusIcon } from '../shared/icons'
 import { Logo } from '../shared/Logo'
 import { useInbox } from './OperatorApp'
 
@@ -54,7 +54,7 @@ export function Shell() {
 
       <div className="operator-main">
         <header className="operator-header">
-          <h1>{section?.label ?? 'Inbox'}</h1>
+          <HeaderContent pathname={pathname} fallback={section?.label ?? 'Inbox'} />
         </header>
         <Outlet />
       </div>
@@ -64,4 +64,35 @@ export function Shell() {
       </nav>
     </div>
   )
+}
+
+/** Page title, plus the Knowledge pages' breadcrumb and "New entry" button. */
+function HeaderContent({ pathname, fallback }: { pathname: string; fallback: string }) {
+  const editing = pathname.match(/^\/operator\/knowledge\/(.+)$/)
+  if (editing) {
+    return (
+      <div className="breadcrumb">
+        <Link to="/operator/knowledge" className="breadcrumb-link">
+          <ChevronLeftIcon size={18} />
+          Knowledge
+        </Link>
+        <span aria-hidden="true" className="breadcrumb-sep">
+          /
+        </span>
+        <h1>{editing[1] === 'new' ? 'New entry' : 'Edit entry'}</h1>
+      </div>
+    )
+  }
+  if (pathname.startsWith('/operator/knowledge')) {
+    return (
+      <>
+        <h1>Knowledge</h1>
+        <Link to="/operator/knowledge/new" className="btn btn-primary">
+          <PlusIcon size={16} />
+          New entry
+        </Link>
+      </>
+    )
+  }
+  return <h1>{fallback}</h1>
 }

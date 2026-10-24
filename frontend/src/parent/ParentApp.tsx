@@ -1,22 +1,38 @@
-import { Link } from 'react-router'
-import { Logo } from '../shared/Logo'
-import { useHealth } from '../shared/useHealth'
-import '../shared/shell.css'
+import { useState } from 'react'
+import { Navigate, Route, Routes } from 'react-router'
+import { Chat } from './Chat'
+import { CreateParent } from './CreateParent'
+import { getParentId } from './session'
+import { SignIn } from './SignIn'
+import './parent.css'
 
+/** Parent app at /parent: sign in, create a demo parent, chat (PLAN.md 4.3). */
 export function ParentApp() {
-  const health = useHealth()
+  // Read once; sign-in and sign-out update it so routes react without a reload.
+  const [parentId, setParentIdState] = useState(getParentId)
 
   return (
-    <main className="placeholder">
-      <section className="placeholder-card">
-        <Logo />
-        <h1>Maple Grove</h1>
-        <p>Front desk for parents. The chat arrives in Phase 4.</p>
-        <span className="placeholder-meta">API: {health}</span>
-        <Link className="placeholder-link" to="/operator">
-          Open the operator control center
-        </Link>
-      </section>
-    </main>
+    <div className="parent-app">
+      <Routes>
+        <Route
+          index
+          element={
+            parentId ? <Navigate to="chat" replace /> : <SignIn onSignIn={setParentIdState} />
+          }
+        />
+        <Route path="new" element={<CreateParent onCreated={setParentIdState} />} />
+        <Route
+          path="chat"
+          element={
+            parentId ? (
+              <Chat parentId={parentId} onSignOut={() => setParentIdState(null)} />
+            ) : (
+              <Navigate to="/parent" replace />
+            )
+          }
+        />
+        <Route path="*" element={<Navigate to="/parent" replace />} />
+      </Routes>
+    </div>
   )
 }

@@ -94,5 +94,13 @@ function HeaderContent({ pathname, fallback }: { pathname: string; fallback: str
       </>
     )
   }
+  if (pathname.startsWith('/operator/insights')) {
+    return (
+      <div className="header-title">
+        <h1>Insights</h1>
+        <span className="muted">Last 7 days · test conversations excluded</span>
+      </div>
+    )
+  }
   return <h1>{fallback}</h1>
 }

@@ -68,3 +68,4 @@
 - "noul" is a yes/no question type that returns a probability of being yes
 - "hono" similar to express, request, response fetch
 - "add to existing entry" does not add the "from a parent question" tag, revisit later if desired
+- trying to save some time, had phase 8 run concurrently in a worktree branch 

@@ -14,7 +14,7 @@ export function OperatorApp() {
         <p>Inbox, Knowledge and Insights arrive in Phases 5–7.</p>
         <span className="placeholder-meta">API: {health}</span>
         <Link className="placeholder-link" to="/">
-          Open the parent app
+          Back to start
         </Link>
       </section>
     </main>

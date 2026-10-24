@@ -69,3 +69,7 @@
 - "hono" similar to express, request, response fetch
 - "add to existing entry" does not add the "from a parent question" tag, revisit later if desired
 - trying to save some time, had phase 8 run concurrently in a worktree branch 
+- insights only computes on load and does not update like inbox does, for demo this is fine
+- insights come from jev router choices about categories etc when messages are received
+- started looking up how the deploy to cloudflare will work
+-test script is hard coded, no ui to add test cases

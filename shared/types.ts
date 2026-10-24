@@ -156,3 +156,15 @@ export interface ReplyResult {
   message: Message
   savedEntry: KnowledgeEntry | null
 }
+
+/** GET /api/insights: the last 7 days, test conversations excluded (PLAN.md 4.4). */
+export interface Insights {
+  questionsAsked: number
+  /** Whole percentages that add up to 100 (both 0 when nothing was asked). */
+  answeredByAiPct: number
+  sentToPersonPct: number
+  /** Topics with at least one question, most asked first. */
+  topTopics: { topic: Category; count: number }[]
+  /** Uncovered questions grouped by wording, most asked first. */
+  couldntAnswer: { question: string; topic: Category; count: number }[]
+}

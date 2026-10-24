@@ -2,6 +2,7 @@ import { readChatEvents } from '../../../shared/chatStream'
 import type {
   ChatEvent,
   InboxItem,
+  Insights,
   KnowledgeEntry,
   KnowledgeEntryDetail,
   Parent,
@@ -65,6 +66,7 @@ export const api = {
     post<ThreadRequest>(`/api/requests/${enc(requestId)}/ask-person`),
 
   inbox: () => request<InboxItem[]>('/api/inbox'),
+  insights: () => request<Insights>('/api/insights'),
   requestDetail: (id: string) => request<RequestDetail>(`/api/requests/${enc(id)}`),
   markSeen: (id: string) => post<InboxItem>(`/api/requests/${enc(id)}/seen`),
   forward: (id: string, role: StaffRole) =>

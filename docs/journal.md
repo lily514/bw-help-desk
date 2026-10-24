@@ -67,3 +67,4 @@
 - the conversation thread does get tricky if the parent asks consecutive questions before the admin can get back
 - "noul" is a yes/no question type that returns a probability of being yes
 - "hono" similar to express, request, response fetch
+- "add to existing entry" does not add the "from a parent question" tag, revisit later if desired

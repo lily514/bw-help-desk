@@ -175,6 +175,10 @@
   margin: 0;
 }
 
+.empty-card .btn {
+  margin-top: 16px;
+}
+
 .muted {
   color: var(--muted);
 }
@@ -253,6 +257,10 @@
 .inbox-list-meta {
   font-size: 13px;
   color: var(--muted);
+}
+
+.inbox-list-meta.is-offline {
+  color: var(--urgent);
 }
 
 .inbox-empty {
@@ -491,8 +499,15 @@
 }
 
 .request-error {
-  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
   color: var(--unsafe);
+}
+
+.request-error p {
+  margin: 0;
 }
 
 .why {

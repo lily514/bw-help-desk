@@ -31,7 +31,11 @@ export function Inbox() {
       <section className="inbox-list" aria-label="Conversations">
         <div className="inbox-list-head">
           <span className="inbox-list-title">Needs you</span>
-          {items && <span className="inbox-list-meta">{inboxSummary(items)}</span>}
+          {items && (
+            <span className={`inbox-list-meta${failed ? ' is-offline' : ''}`} role="status">
+              {failed ? 'Reconnecting…' : inboxSummary(items)}
+            </span>
+          )}
         </div>
         {!items && !failed && <p className="inbox-empty">Loading…</p>}
         {failed && !items && (

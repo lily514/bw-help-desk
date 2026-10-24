@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import type { Insights as InsightsData } from '../../../shared/types'
 import { api } from '../shared/api'
 import { PlusIcon } from '../shared/icons'
+import { RetryButton } from './RetryButton'
 import './insights.css'
 
 function askedTimes(count: number): string {
@@ -13,6 +14,7 @@ function askedTimes(count: number): string {
 export function Insights() {
   const [data, setData] = useState<InsightsData | null>(null)
   const [failed, setFailed] = useState(false)
+  const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -23,13 +25,19 @@ export function Insights() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [attempt])
+
+  const retry = () => {
+    setFailed(false)
+    setAttempt((n) => n + 1)
+  }
 
   if (failed) {
     return (
       <div className="operator-page">
         <div className="empty-card">
-          <p>Couldn't load insights. Refresh to try again.</p>
+          <p>Couldn't load insights.</p>
+          <RetryButton onClick={retry} />
         </div>
       </div>
     )

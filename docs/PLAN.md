@@ -37,7 +37,7 @@ Operator ─────┘   Hono API under /api    ├─ OpenRouter      → 
 laptop            + static React app     └─ D1 (SQLite)     → parents, messages, requests, KB
 ```
 
-- **One Cloudflare Worker** serves the built React app as static assets and the API under `/api/*`. One deploy, one URL. Parent at `/`, operator at `/operator`.
+- **One Cloudflare Worker** serves the built React app as static assets and the API under `/api/*`. One deploy, one URL. Landing ("choose a view") at `/`, parent at `/parent`, operator at `/operator`.
 - **No retrieval step.** The whole knowledge base (about 3k tokens) goes in the model's system prompt on every call. The KB sits at the start of the prompt so the provider's automatic prompt caching can reuse it (OpenRouter passes OpenAI's prefix caching through; no cache markers needed).
 - **Streaming:** `POST /api/chat` returns Server-Sent Events, so the AI answer streams into the parent's own thread word by word.
 - **Cross-device updates = polling every 2 seconds.** The operator inbox and the parent thread poll for new messages and status changes. This is a deliberate simplification of the design's "SSE or WebSocket" suggestion: fanning live events out across devices on Workers needs Durable Objects, which isn't worth it for a demo. Two-second polling looks live. Note this in the README.
@@ -82,7 +82,8 @@ laptop            + static React app     └─ D1 (SQLite)     → parents, mes
 └─ frontend/               the React app (Vite root)
    ├─ index.html, public/
    └─ src/
-      ├─ parent/           SignIn, CreateParent, Thread, PolicySheet, StatusCard, UrgentBanner
+      ├─ Landing.tsx       "choose a view" at /
+      ├─ parent/           SignIn, CreateParent, Chat, Bubbles, PolicySheet, StatusCard, UrgentBanner
       ├─ operator/         Shell, Inbox, Knowledge, KnowledgeEditor, Insights, TestMode, testScenarios.ts
       └─ shared/           api client, usePolling, tokens.css
 ```
@@ -304,11 +305,13 @@ Maple Grove's own look: warm, calm, quietly trustworthy. One accent color, gener
 
 Shared: header with logo, "Maple Grove," "Front desk"; input pinned to the bottom (pill input "Ask about Maple Grove" and a round 48px send button). Free text only.
 
-**Sign in (fake).** Logo, "Maple Grove," "Early Learning Center," short intro. Primary **"Continue as Sam Rivera"**. Secondary **"Create a new parent"**. Footnote: "Demo sign-in. No password needed. Evaluators: create your own parent and child to start with an empty thread." Store the chosen parent id in `localStorage`.
+**Landing (`/`).** From the design: "AI Front Desk" hero, two cards ("I'm a parent" → `/parent`, "I'm the front desk" → `/operator`), a demo tip, and a footer note.
+
+**Sign in (fake, `/parent`).** Logo, "Maple Grove," "Early Learning Center," short intro. Primary **"Continue as Sam Rivera"**. Secondary **"Create a new parent"**. Footnote: "Demo sign-in. No password needed. Evaluators: create your own parent and child to start with an empty thread." Store the chosen parent id in `localStorage`.
 
 **Create a demo parent.** Back button, yellow "For evaluators" badge, title "Create a demo parent." Fields: Your name, Child's first name, Classroom (Infants, Toddlers, Twos, Preschool). CTA **"Create and start chatting"** creates a parent with `is_demo = 1` and opens an empty thread. Footnote: "Demo parents are cleared when test data is reset."
 
-**Chat thread.**
+**Chat thread (`/parent/chat`).** The header has a small "Switch parent" icon button (not in the design) that clears the stored parent and returns to sign-in.
 - Greeting on first run: "Hi {first name}, ask me anything about Maple Grove. If it needs a person, I'll make sure Dana sees it."
 - Messages persist; date divider ("Today").
 - Bubbles: parent = accent, right, white text · AI = white with border, left · staff = `staff-bubble`, with initials avatar and "Dana Whitfield · Director · 12:18 PM". Staff must look clearly different from AI.

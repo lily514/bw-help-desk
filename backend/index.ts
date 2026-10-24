@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import type { Env } from './env'
 import { chat } from './routes/chat'
 import { inbox } from './routes/inbox'
+import { insights } from './routes/insights'
 import { kb } from './routes/kb'
 import { parents } from './routes/parents'
 import { requests } from './routes/requests'
@@ -17,6 +18,7 @@ app.route('/chat', chat)
 app.route('/thread', thread)
 app.route('/requests', requests)
 app.route('/inbox', inbox)
+app.route('/insights', insights)
 
 app.notFound((c) => c.json({ error: 'Not found' }, 404))
 

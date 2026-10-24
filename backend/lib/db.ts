@@ -12,6 +12,7 @@ import type {
   StaffRole,
   ThreadRequest,
 } from '../../shared/types'
+import { slugify } from './slug'
 
 // Row shapes as stored in D1 (snake_case, 0/1 booleans).
 
@@ -137,6 +138,18 @@ export async function insertKnowledge(db: D1Database, e: KnowledgeEntry): Promis
       e.updatedAt,
     )
     .run()
+}
+
+/** New entries get ids like `program:do_you_offer_swim_lessons`, de-duplicated with a suffix. */
+export async function createEntryId(
+  db: D1Database,
+  category: Category,
+  title: string,
+): Promise<string> {
+  const base = `${category.toLowerCase()}:${slugify(title)}`
+  let id = base
+  for (let n = 2; await getKnowledge(db, id); n++) id = `${base}_${n}`
+  return id
 }
 
 export async function updateKnowledge(

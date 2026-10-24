@@ -1,8 +1,13 @@
 import { Hono } from 'hono'
 import { CATEGORIES, type Category, type KnowledgeEntry } from '../../shared/types'
 import type { Env } from '../env'
-import { getKnowledge, insertKnowledge, listKnowledge, updateKnowledge } from '../lib/db'
-import { slugify } from '../lib/slug'
+import {
+  createEntryId,
+  getKnowledge,
+  insertKnowledge,
+  listKnowledge,
+  updateKnowledge,
+} from '../lib/db'
 
 export const kb = new Hono<{ Bindings: Env }>()
 
@@ -27,18 +32,13 @@ kb.get('/:id', async (c) => {
   return entry ? c.json(entry) : c.json({ error: 'Entry not found' }, 404)
 })
 
-/** New entries get ids like `program:do_you_offer_swim_lessons`, de-duplicated with a suffix. */
 kb.post('/', async (c) => {
   const raw = await c.req.json<Record<string, unknown>>()
   const input = parseInput(raw)
   if (!input) return c.json({ error: 'title, body and a valid category are required' }, 400)
 
-  const base = `${input.category.toLowerCase()}:${slugify(input.title)}`
-  let id = base
-  for (let n = 2; await getKnowledge(c.env.DB, id); n++) id = `${base}_${n}`
-
   const entry: KnowledgeEntry = {
-    id,
+    id: await createEntryId(c.env.DB, input.category, input.title),
     ...input,
     fromParentQuestion: raw.fromParentQuestion === true,
     sourceRequestId: typeof raw.sourceRequestId === 'string' ? raw.sourceRequestId : null,

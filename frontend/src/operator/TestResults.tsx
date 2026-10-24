@@ -17,7 +17,7 @@ export function TestResults() {
     <div className="operator-page test-results">
       {!enabled && (
         <div className="test-off-note">
-          <span>Turn on test mode to run the 15 scripted questions.</span>
+          <span>Turn on test mode to run the {TEST_SCENARIOS.length} scripted questions.</span>
           <button type="button" className="btn btn-outline" onClick={() => setEnabled(true)}>
             Turn on test mode
           </button>

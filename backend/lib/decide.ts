@@ -6,8 +6,8 @@ export const THRESHOLDS = {
   urgent: 0.5,
   sensitive: 0.6,
   answerable: 0.5,
-  // 0.4, not the plan's 0.5: #3 (mom not on the pickup list) scores ~0.5; plain questions score < 0.1.
-  staffAction: 0.4,
+  // Measured with Jev: #13 (tour) 0.43–0.53, #15 after the save ~0.11, plain questions < 0.05.
+  staffAction: 0.35,
   childHealth: 0.5,
 } as const
 

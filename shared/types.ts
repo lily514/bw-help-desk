@@ -106,3 +106,48 @@ export interface RouteScores {
   needs_staff_action: number
   answerable_from_kb: number
 }
+
+/** One row in the operator inbox (PLAN.md 4.4). */
+export interface InboxItem {
+  id: string
+  parentId: string
+  parentName: string
+  childName: string
+  room: Room
+  /** The parent's message. */
+  text: string
+  route: Route
+  status: RequestStatus
+  suggestedRole: StaffRole
+  forwardedTo: StaffRole | null
+  isTest: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface RequestDetail {
+  request: InboxItem & {
+    reason: string
+    scores: RouteScores | null
+    router: RouterName
+    topic: Category
+    answerable: boolean
+  }
+  /** This parent's previous question, for the one-line "Earlier…" context. */
+  earlier: { text: string; route: Route; createdAt: string } | null
+  /** What the parent already heard from the AI, if it sent an answer (not an acknowledgement). */
+  aiAnswer: { text: string; citations: string[] } | null
+  /** Staff replies already sent on this request. */
+  replies: Message[]
+  /** Entries for "Save as answer", with the best match preselected. */
+  knowledge: { id: string; title: string; category: Category }[]
+  bestMatchId: string | null
+}
+
+export type SaveAs = { entryId: string } | { create: true }
+
+export interface ReplyResult {
+  request: InboxItem
+  message: Message
+  savedEntry: KnowledgeEntry | null
+}

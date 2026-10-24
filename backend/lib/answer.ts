@@ -4,6 +4,7 @@ import type { Env } from '../env'
 import { CitationStream } from './citations'
 import { LLM_TIMEOUT_MS, openRouter } from './llm'
 
+/** The time zone for the Maple Grove Early Learning Center; NOT central time */
 export const CENTER_TIME_ZONE = 'America/Indiana/Indianapolis'
 
 /** Earlier messages from the thread given to the model, so follow-ups make sense. */

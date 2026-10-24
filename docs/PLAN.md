@@ -221,7 +221,9 @@ One Jev call per message, all questions evaluated in parallel. The KB is passed 
 | `needs_staff_action` | Noul | Given the center's policies, does a staff member need to do something, rather than the policies already telling the parent what to do? |
 | `answerable_from_kb` | Noul | Can this be fully answered from the center's policies? |
 
-`needs_staff_action` is phrased against the KB on purpose. Before #3 is saved, "Can my mom pick Maya up?" needs Dana. After Dana's reply is saved ("send the office her name and number"), the policy tells the parent what to do, so #15 routes to AI answers. This is the learning moment, so test it explicitly.
+`needs_staff_action` is phrased against the KB on purpose. As built, it asks whether the policies *leave out how* to get done what the parent wants ("…so a staff member has to step in?"), because after Dana's reply staff still act, but the policy now says what to do. The router sees only the new message and the KB, no conversation history: with history, an earlier message (an unresolved #3, an urgent #10) leaked into the next question's scores. Measured with Jev: #3 ≈ 0.9, #15 after the save ≈ 0.1, so the threshold is 0.35 (#13 tour scores 0.43–0.53).
+
+Original note: Before #3 is saved, "Can my mom pick Maya up?" needs Dana. After Dana's reply is saved ("send the office her name and number"), the policy tells the parent what to do, so #15 routes to AI answers. This is the learning moment, so test it explicitly.
 
 `reason` is a short plain-language string built from the strongest signal, e.g. "About Maya's health today," "Asks staff to do something," "Possible custody issue," "Not covered by your policies."
 
@@ -330,7 +332,7 @@ Shared: header with logo, "Maple Grove," "Front desk"; input pinned to the botto
 - List item: parent and child name, truncated first line, route badge, time, status (New / Forwarded to {role} / Replied), "Test" badge if test. Urgent pinned first with orange tint and border. Selected item: 2px accent border. New items slide in with a soft highlight.
 - Opening an item marks it Seen.
 - Detail, top to bottom:
-    1. Parent name; "Mom of Maya · Twos room · Today 5:32 PM"; route badge.
+    1. Parent name; "Parent of Maya · Twos room · Today 5:32 PM" (the design says "Mom of"; we don't know a parent's gender); route badge.
     2. The message, plus one muted line of earlier context ("Earlier today: asked about Thanksgiving closures (answered by AI)").
     3. **Why this came to you:** the reason, with a **Details** toggle showing scores and which router ran.
     4. **What {parent} already heard:** the AI answer (dashed border) and its chips, only if one was sent.

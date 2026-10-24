@@ -62,3 +62,8 @@
 
 - claude console decided I was suspicious and I got locked out for a few hours. Pivoting to use a different model for chat completions via openrouter
 - reorganized the repo structure to the frontend/ & backend/ folder structure that is more familiar to me
+- I needed to give more direction about using the jev router, I've never used openrouter or jev before, but it's cool that open router offers access to all these different models with one key, claude didn't have enough info to understand right away. linking to documentation helped because there is a different decisions endpoint that jev has to use. It had to iterate to get jev to pass the routing tests but got it eventually
+- claude gathered screenshots after the parent-ui phase completed, I haven't seen that before. It was nice to open them from the command line instead of going to find them in finder
+- the conversation thread does get tricky if the parent asks consecutive questions before the admin can get back
+- "noul" is a yes/no question type that returns a probability of being yes
+- "hono" similar to express, request, response fetch

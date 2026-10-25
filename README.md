@@ -34,7 +34,7 @@ laptop            + static React app     └─ D1 (SQLite)          → parents
 - **Live updates by polling.** The parent thread and the operator inbox poll every 2 seconds.
 - **Test mode runs in the browser.** The operator UI plays an automated parent and operator through the normal API, so the Worker runs no background jobs.
 
-Code lives in `backend/` (Worker), `frontend/` (React, plain CSS on the tokens in `frontend/src/shared/tokens.css`) and `shared/` (API types). `docs/PLAN.md` is the full spec; `docs/journal.md` has decision notes.
+Code lives in `backend/` (Worker, layered as described in `backend/README.md`), `frontend/` (React, plain CSS on the tokens in `frontend/src/shared/tokens.css`) and `shared/` (API types). `docs/PLAN.md` is the full spec; `docs/journal.md` has decision notes.
 
 ## Local setup
 

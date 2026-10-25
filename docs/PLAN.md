@@ -70,15 +70,16 @@ laptop            + static React app     └─ D1 (SQLite)     → parents, mes
 ├─ backend/                the Cloudflare Worker
 │  ├─ index.ts             Hono app, mounts routes under /api
 │  ├─ env.ts               bindings and vars
-│  ├─ routes/              chat.ts, thread.ts, parents.ts, kb.ts, requests.ts, insights.ts, test.ts
-│  ├─ lib/answer.ts        streamed answer (OpenRouter) + citation parsing
-│  ├─ lib/llm.ts           OpenRouter client + model config
-│  ├─ lib/router.ts        Jev call → scores, topic, reason; LLM fallback
-│  ├─ lib/decide.ts        pure: scores → route + suggested role
-│  ├─ lib/db.ts            small typed query helpers
+│  ├─ README.md            the layers and where to find things
+│  ├─ routes/              controllers: chat.ts, thread.ts, parents.ts, kb.ts, requests.ts, insights.ts, test.ts
+│  ├─ services/            business logic: chat pipeline, replies, knowledge, insights, test mode
+│  ├─ ai/                  openrouter.ts (client), router.ts (Jev + LLM fallback), answer.ts (streamed answer)
+│  ├─ db/                  D1 repositories, one file per table; rows.ts maps rows to API types
+│  ├─ domain/              pure: decide.ts (scores → route), roles, citations, match, handbook, insights
+│  ├─ seed/                handbook.md + seed history → seed SQL
 │  ├─ migrations/          D1 SQL migrations
-│  ├─ scripts/seed.ts      handbook.md + seed history → seed SQL
-│  └─ test/                decide.test.ts, seed.test.ts, citations.test.ts
+│  ├─ scripts/             seed.ts (db:seed), check-routes.ts
+│  └─ test/                unit tests for domain/ and parsing
 └─ frontend/               the React app (Vite root)
    ├─ index.html, public/
    └─ src/

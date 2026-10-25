@@ -20,7 +20,7 @@ Take-home prototype. `docs/PLAN.md` is the build spec and the source of truth; f
 ## Conventions
 
 - One package, three source folders:
-  - `backend/`: the Cloudflare Worker. Hono API under `/api`, bindings in `backend/env.ts`, plus `migrations/`, `scripts/`, `test/`.
+  - `backend/`: the Cloudflare Worker. Hono API under `/api`, bindings in `backend/env.ts`. Layered `routes/ → services/ → ai/, db/ → domain/`; imports only point right, and only `db/` runs SQL (see `backend/README.md`). Plus `seed/`, `migrations/`, `scripts/`, `test/`.
   - `frontend/`: the React app and the Vite root (`index.html`, `public/`, `src/`).
   - `shared/`: API types imported by both.
 - Frontend: `frontend/src/{parent,operator,shared}`. Plain CSS using the variables in `frontend/src/shared/tokens.css`; no CSS framework.

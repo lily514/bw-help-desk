@@ -7,7 +7,7 @@ import type {
   StaffRole,
   ThreadInquiry,
 } from '../../shared/types'
-import type { InsightRow } from '../domain/insights'
+import type { InsightQuestion } from '../domain/insights'
 import { toThreadInquiry, type InquiryRow } from './rows'
 
 export interface NewInquiry {
@@ -87,7 +87,7 @@ export async function getEarlierQuestion(
 }
 
 /** Non-test inquiries since `since`, with their questions, for Insights. */
-export async function listInsightRows(db: D1Database, since: string): Promise<InsightRow[]> {
+export async function listInsightRows(db: D1Database, since: string): Promise<InsightQuestion[]> {
   const { results } = await db
     .prepare(
       `SELECT r.route, r.topic, r.answerable, r.created_at, m.text

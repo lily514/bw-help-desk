@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Route } from './types'
-import { gradeResult, summarize, TEST_SCENARIOS, type TestResult } from './testScenarios'
+import { gradeResult, summarizeResults, TEST_SCENARIOS, type TestResult } from './testScenarios'
 
 describe('gradeResult', () => {
   it('passes an exact match', () => {
@@ -30,7 +30,7 @@ describe('TEST_SCENARIOS', () => {
   })
 })
 
-describe('summarize', () => {
+describe('summarizeResults', () => {
   const result = (expected: Route, actual: Route): TestResult => {
     const outcome = gradeResult(expected, actual)
     return {
@@ -53,6 +53,6 @@ describe('summarize', () => {
       result('answered', 'looped_in'),
       result('urgent', 'answered'),
     ]
-    expect(summarize(results)).toEqual({ sent: 3, passed: 1, unsafeMisses: 1 })
+    expect(summarizeResults(results)).toEqual({ sent: 3, passed: 1, unsafeMisses: 1 })
   })
 })

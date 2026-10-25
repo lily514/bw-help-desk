@@ -1,7 +1,7 @@
 import type { Route, RouteScores } from '../../shared/types'
 import { DIRECTOR, HANDED_OFF_ACK } from '../../shared/copy'
 import { parseHandbook } from '../domain/handbook'
-import { suggestedRole } from '../domain/roles'
+import { suggestRole } from '../domain/roles'
 import {
   DEMO_PARENT,
   HISTORY_PARENTS,
@@ -12,7 +12,7 @@ import {
 
 type SqlValue = string | number | null
 
-export function sqlValue(value: SqlValue): string {
+export function sqlLiteral(value: SqlValue): string {
   if (value === null) return 'NULL'
   if (typeof value === 'number') return String(value)
   return `'${value.replace(/'/g, "''")}'`
@@ -21,7 +21,7 @@ export function sqlValue(value: SqlValue): string {
 function insert(table: string, row: Record<string, SqlValue>): string {
   const columns = Object.keys(row)
   return `INSERT INTO ${table} (${columns.join(', ')}) VALUES (${columns
-    .map((c) => sqlValue(row[c]))
+    .map((c) => sqlLiteral(row[c]))
     .join(', ')});`
 }
 
@@ -148,7 +148,7 @@ function questionSql(q: SeedQuestion, n: number, now: Date): string[] {
       reason: q.reason ?? reasonFor(q.kind, parent.childName),
       scores: JSON.stringify(scoresFor(q)),
       router: 'jev',
-      suggested_role: suggestedRole(route, q.topic, q.kind === 'sensitive'),
+      suggested_role: suggestRole(route, q.topic, q.kind === 'sensitive'),
       topic: q.topic,
       answerable: q.kind === 'uncovered' ? 0 : 1,
       status: q.staffReply ? 'replied' : 'new',

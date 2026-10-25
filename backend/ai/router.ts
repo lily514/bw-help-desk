@@ -9,7 +9,7 @@ import {
   type SensitiveKind,
 } from '../../shared/types'
 import type { Env } from '../env'
-import { CENTER_TIME_ZONE, formatEntry } from './answer'
+import { CENTER_TIME_ZONE, formatEntry } from './prompt'
 import { LLM_TIMEOUT_MS, openRouter } from './openrouter'
 
 /**
@@ -73,20 +73,20 @@ const NOUL_QUESTIONS = {
 
 type NoulKey = keyof typeof NOUL_QUESTIONS
 
-export interface RouteInput {
+export interface ScoreInput {
   parent: Parent
   question: string
   kb: KnowledgeEntry[]
   now: Date
 }
 
-export interface RouterResult {
+export interface ScoreResult {
   scores: RouteScores
   router: Exclude<RouterName, 'error'>
 }
 
 /** Jev unless ROUTER=llm; the chat-model fallback if Jev fails. */
-export async function routeQuestion(env: Env, input: RouteInput): Promise<RouterResult> {
+export async function scoreQuestion(env: Env, input: ScoreInput): Promise<ScoreResult> {
   if (env.ROUTER === 'jev') {
     try {
       return { scores: await jevScores(env, input), router: 'jev' }
@@ -102,7 +102,7 @@ export async function routeQuestion(env: Env, input: RouteInput): Promise<Router
  * judgment about the new message against the current policies. With history, an
  * earlier urgent or unresolved message leaked into the next one's scores.
  */
-export function routerState({ parent, question, kb, now }: RouteInput) {
+export function routerState({ parent, question, kb, now }: ScoreInput) {
   return {
     center_policies: kb.map(formatEntry).join('\n\n'),
     today: now.toLocaleDateString('en-US', {
@@ -146,7 +146,7 @@ function jevQuestions() {
 
 type JevAnswer = { type: 'noul'; noul: number } | { type: 'choice'; choice: string }
 
-async function jevScores(env: Env, input: RouteInput): Promise<RouteScores> {
+async function jevScores(env: Env, input: ScoreInput): Promise<RouteScores> {
   if (!env.OPENROUTER_API_KEY) throw new Error('OPENROUTER_API_KEY is not set')
   const res = await fetch(DECISIONS_URL, {
     method: 'POST',
@@ -191,7 +191,7 @@ ${(Object.keys(NOUL_QUESTIONS) as NoulKey[])
   })
   .join('\n')}`
 
-async function llmScores(env: Env, input: RouteInput): Promise<RouteScores> {
+async function llmScores(env: Env, input: ScoreInput): Promise<RouteScores> {
   const response = await openRouter(env).chat.completions.create(
     {
       model: env.CHAT_COMPLETION_MODEL,

@@ -3,9 +3,7 @@ import type { KnowledgeEntry, Message, Parent } from '../../shared/types'
 import type { Env } from '../env'
 import { CitationStream } from '../domain/citations'
 import { LLM_TIMEOUT_MS, openRouter } from './openrouter'
-
-/** The time zone for the Maple Grove Early Learning Center; NOT central time */
-export const CENTER_TIME_ZONE = 'America/Indiana/Indianapolis'
+import { CENTER_TIME_ZONE, formatEntry } from './prompt'
 
 /** Earlier messages from the thread given to the model, so follow-ups make sense. */
 const HISTORY_LIMIT = 6
@@ -25,10 +23,6 @@ Rules:
 Output format: write the answer, then end with one final line listing every knowledge base entry you used:
 [[cite: id1, id2]]
 Use the exact ids in square brackets from the knowledge base. If you used none, write [[cite: ]].`
-
-export function formatEntry(e: KnowledgeEntry): string {
-  return `[${e.id}] ${e.title} (${e.category}, updated ${e.updatedAt.slice(0, 10)})\n${e.body}`
-}
 
 export interface AnswerContext {
   parent: Parent

@@ -1,16 +1,16 @@
 import { HANDED_OFF_ACK, URGENT_ACK } from '../../shared/copy'
 import type { ChatEvent, KnowledgeEntry, Message, Parent, Route } from '../../shared/types'
 import { streamAnswer } from '../ai/answer'
-import { routeQuestion, type RouteInput } from '../ai/router'
+import { scoreQuestion, type ScoreInput } from '../ai/router'
 import { listKnowledge } from '../db/knowledge'
-import { insertMessage, listMessages } from '../db/messages'
+import { insertMessage, listParentMessages } from '../db/messages'
 import { insertInquiry, markInquiryHandedOff, type NewInquiry } from '../db/inquiries'
 import { decide } from '../domain/decide'
 import type { Env } from '../env'
 import { getParent } from './parents'
 
 /** A saved question, with what answering it needs. */
-export interface Question {
+export interface SavedQuestion {
   parent: Parent
   inquiryId: string
   message: Message
@@ -22,9 +22,9 @@ export interface Question {
 export async function saveQuestion(
   db: D1Database,
   input: { parentId: string; text: string; isTest: boolean },
-): Promise<Question> {
+): Promise<SavedQuestion> {
   const parent = await getParent(db, input.parentId)
-  const [kb, history] = await Promise.all([listKnowledge(db), listMessages(db, parent.id)])
+  const [kb, history] = await Promise.all([listKnowledge(db), listParentMessages(db, parent.id)])
 
   const inquiryId = crypto.randomUUID()
   const message: Message = {
@@ -51,7 +51,7 @@ export async function saveQuestion(
  */
 export async function answerQuestion(
   env: Env,
-  { parent, inquiryId, message: question, kb, history }: Question,
+  { parent, inquiryId, message: question, kb, history }: SavedQuestion,
   send: (event: ChatEvent) => Promise<void>,
 ): Promise<void> {
   const db = env.DB
@@ -111,10 +111,10 @@ export async function answerQuestion(
 /** Router + decision, or a hand-off if routing fails (PLAN.md 3.1 step 7). */
 async function routeOrHandOff(
   env: Env,
-  input: RouteInput,
+  input: ScoreInput,
 ): Promise<Omit<NewInquiry, 'id' | 'parentId' | 'messageId' | 'isTest' | 'createdAt'>> {
   try {
-    const { scores, router } = await routeQuestion(env, input)
+    const { scores, router } = await scoreQuestion(env, input)
     const decision = decide(scores, input.parent.childName)
     return {
       route: decision.route,

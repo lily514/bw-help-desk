@@ -1,5 +1,5 @@
 import type { Route, RouteScores, SensitiveKind, StaffRole } from '../../shared/types'
-import { suggestedRole } from './roles'
+import { suggestRole } from './roles'
 
 /** Routing thresholds (PLAN.md 3.3). Tuned in Phase 8; keep them all here. */
 export const THRESHOLDS = {
@@ -64,5 +64,5 @@ export function decide(scores: RouteScores, childName: string): Decision {
     reason = 'Covered by your policies'
   }
 
-  return { route, reason, answerable, suggestedRole: suggestedRole(route, scores.topic, sensitive) }
+  return { route, reason, answerable, suggestedRole: suggestRole(route, scores.topic, sensitive) }
 }

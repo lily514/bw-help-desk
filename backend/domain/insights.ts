@@ -3,7 +3,7 @@ import type { Category, Insights, Route } from '../../shared/types'
 export const INSIGHTS_DAYS = 7
 
 /** One non-test inquiry in the window, with the parent's question. */
-export interface InsightRow {
+export interface InsightQuestion {
   route: Route
   topic: Category
   answerable: boolean
@@ -24,7 +24,7 @@ export function questionKey(text: string): string {
  * Stat tiles, top topics and "Couldn't answer". An uncovered question drops off the list once
  * an entry is titled with it, which is what "Add answer" and "Create a new entry" both do.
  */
-export function summarizeInsights(rows: InsightRow[], kbTitles: string[]): Insights {
+export function summarizeInsights(rows: InsightQuestion[], kbTitles: string[]): Insights {
   const total = rows.length
   const answered = rows.filter((r) => r.route === 'answered').length
   const answeredByAiPct = total ? Math.round((answered / total) * 100) : 0

@@ -11,7 +11,7 @@ const ROLE_BY_TOPIC: Record<Category, StaffRole> = {
 }
 
 /** PLAN.md 3.3: urgent and sensitive go to the Director; otherwise by topic. */
-export function suggestedRole(route: Route, topic: Category, sensitive: boolean): StaffRole {
+export function suggestRole(route: Route, topic: Category, sensitive: boolean): StaffRole {
   if (route === 'urgent' || sensitive) return 'Director'
   return ROLE_BY_TOPIC[topic]
 }

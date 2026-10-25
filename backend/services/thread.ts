@@ -1,5 +1,5 @@
 import type { ThreadResponse } from '../../shared/types'
-import { listMessages } from '../db/messages'
+import { listParentMessages } from '../db/messages'
 import { listThreadInquiries } from '../db/inquiries'
 import { getParent } from './parents'
 
@@ -18,7 +18,7 @@ export async function getThread(
   await getParent(db, parentId)
   const serverTime = new Date(Date.now() - CURSOR_OVERLAP_MS).toISOString()
   const [messages, inquiries] = await Promise.all([
-    listMessages(db, parentId, since),
+    listParentMessages(db, parentId, since),
     listThreadInquiries(db, parentId, since),
   ])
   return { messages, inquiries, serverTime }

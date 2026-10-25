@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { questionKey, summarizeInsights, type InsightRow } from '../domain/insights'
+import { questionKey, summarizeInsights, type InsightQuestion } from '../domain/insights'
 
-function row(extra: Partial<InsightRow> = {}): InsightRow {
+function row(extra: Partial<InsightQuestion> = {}): InsightQuestion {
   return {
     route: 'answered',
     topic: 'Hours',
@@ -12,7 +12,7 @@ function row(extra: Partial<InsightRow> = {}): InsightRow {
   }
 }
 
-const swim = (createdAt: string, text = 'Do you offer swim lessons?'): InsightRow =>
+const swim = (createdAt: string, text = 'Do you offer swim lessons?'): InsightQuestion =>
   row({ route: 'handed_off', topic: 'Program', answerable: false, text, createdAt })
 
 describe('summarizeInsights', () => {

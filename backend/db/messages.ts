@@ -24,7 +24,7 @@ export async function insertMessage(db: D1Database, m: Message): Promise<void> {
 }
 
 /** Messages for a parent, oldest first; with `since`, only those created after it. */
-export async function listMessages(
+export async function listParentMessages(
   db: D1Database,
   parentId: string,
   since?: string,

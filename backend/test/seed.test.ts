@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { categoryForId, parseHandbook } from '../domain/handbook'
-import { buildSeedSql, easternTime, sqlValue } from '../seed/seed'
+import { buildSeedSql, easternTime, sqlLiteral } from '../seed/seed'
 import { SEED_QUESTIONS } from '../seed/seed-data'
 
 const handbook = readFileSync('data/handbook.md', 'utf8')
@@ -96,9 +96,9 @@ describe('seed history', () => {
 
 describe('helpers', () => {
   it('escapes SQL values', () => {
-    expect(sqlValue("Maya's")).toBe("'Maya''s'")
-    expect(sqlValue(null)).toBe('NULL')
-    expect(sqlValue(3)).toBe('3')
+    expect(sqlLiteral("Maya's")).toBe("'Maya''s'")
+    expect(sqlLiteral(null)).toBe('NULL')
+    expect(sqlLiteral(3)).toBe('3')
   })
 
   it('places seed times in Eastern (EDT) on the right day', () => {

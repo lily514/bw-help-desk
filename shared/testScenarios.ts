@@ -158,7 +158,7 @@ export interface TestResultsResponse {
   results: TestResult[]
 }
 
-export function summarize(results: TestResult[]) {
+export function summarizeResults(results: TestResult[]) {
   return {
     sent: results.length,
     passed: results.filter((r) => r.passed).length,

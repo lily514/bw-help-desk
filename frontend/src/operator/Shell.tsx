@@ -1,7 +1,14 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { DIRECTOR } from '../../../shared/copy'
 import { initials } from '../shared/format'
-import { BookIcon, ChartIcon, ChevronLeftIcon, InboxIcon, PlusIcon } from '../shared/icons'
+import {
+  BookIcon,
+  ChartIcon,
+  ChevronLeftIcon,
+  HomeIcon,
+  InboxIcon,
+  PlusIcon,
+} from '../shared/icons'
 import { Logo } from '../shared/Logo'
 import { useInbox } from './OperatorApp'
 import { TestBar, TestModeSwitch } from './TestMode'
@@ -32,6 +39,14 @@ export function Shell() {
     </NavLink>
   ))
 
+  // Back to the landing page, e.g. to switch to the parent view.
+  const home = (
+    <Link to="/" className="nav-link nav-home">
+      <HomeIcon size={20} />
+      <span className="nav-label">Demo home</span>
+    </Link>
+  )
+
   return (
     <div className="operator">
       <nav className="sidebar" aria-label="Control center">
@@ -43,6 +58,7 @@ export function Shell() {
           </div>
         </div>
         <div className="sidebar-links">{links}</div>
+        {home}
         <div className="sidebar-profile">
           <span className="avatar avatar-lg" aria-hidden="true">
             {initials(DIRECTOR.name)}
@@ -73,6 +89,7 @@ export function Shell() {
 
       <nav className="tabbar" aria-label="Control center">
         {links}
+        {home}
       </nav>
     </div>
   )

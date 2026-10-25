@@ -50,6 +50,11 @@ const NOUL_QUESTIONS = {
   is_sensitive: {
     instructions:
       "Is the new message about custody, a complaint, a child's behavior, a billing dispute, special needs, or a medical judgment?",
+    // Without criteria, "What is the policy about fevers?" scored 0.68 with sensitive_kind
+    // "none", and a question the policies fully cover was handed off.
+    true: "A custody matter, a complaint, a child's behavior or an incident, a disputed charge, special needs, or a medical decision about a specific child",
+    false:
+      'Asking what a policy says, including health and illness policies, or a routine question or request',
   },
   is_child_health_today: {
     instructions: "Is the new message about the parent's own child's health or symptoms today?",

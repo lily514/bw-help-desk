@@ -224,6 +224,8 @@ One Jev call per message, all questions evaluated in parallel. The KB is passed 
 
 `needs_staff_action` is phrased against the KB on purpose. As built, it asks whether the policies *leave out how* to get done what the parent wants ("…so a staff member has to step in?"), because after Dana's reply staff still act, but the policy now says what to do. The router sees only the new message and the KB, no conversation history: with history, an earlier message (an unresolved #3, an urgent #10) leaked into the next question's scores. Measured with Jev: #3 ≈ 0.9, #15 after the save ≈ 0.1, so the threshold is 0.35 (#13 tour scores 0.43–0.53).
 
+`is_sensitive` has yes/no criteria: a decision about a specific child or family (custody, complaint, behavior, disputed charge, special needs, a medical decision) versus asking what a policy says. Without them, "What is the policy about fevers" scored 0.68 (with `sensitive_kind` "none") and was handed off. With them it scores ~0.04, while #7–#9 stay at 0.94–0.98 and #5 at ~0.83.
+
 Original note: Before #3 is saved, "Can my mom pick Maya up?" needs Dana. After Dana's reply is saved ("send the office her name and number"), the policy tells the parent what to do, so #15 routes to AI answers. This is the learning moment, so test it explicitly.
 
 `reason` is a short plain-language string built from the strongest signal, e.g. "About Maya's health today," "Asks staff to do something," "Possible custody issue," "Not covered by your policies."

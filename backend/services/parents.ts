@@ -1,6 +1,6 @@
 import type { Parent, Room } from '../../shared/types'
 import * as parents from '../db/parents'
-import { slugify } from '../domain/slug'
+import { demoParentId } from '../domain/ids'
 import { NotFoundError } from './errors'
 
 export async function getParent(db: D1Database, id: string): Promise<Parent> {
@@ -18,7 +18,7 @@ export async function createDemoParent(
   input: { name: string; childName: string; room: Room; isTest: boolean },
 ): Promise<Parent> {
   const parent: Parent = {
-    id: `demo-${slugify(input.name, 24)}-${crypto.randomUUID().slice(0, 8)}`,
+    id: demoParentId(input.name, crypto.randomUUID().slice(0, 8)),
     name: input.name.slice(0, 80),
     childName: input.childName.slice(0, 40),
     room: input.room,

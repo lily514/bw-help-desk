@@ -1,6 +1,6 @@
 import type { Category, KnowledgeEntry, KnowledgeEntryDetail, SaveAs } from '../../shared/types'
 import * as knowledge from '../db/knowledge'
-import { slugify } from '../domain/slug'
+import { entryIdBase } from '../domain/ids'
 import { NotFoundError } from './errors'
 
 export interface EntryInput {
@@ -86,9 +86,9 @@ export async function saveReplyAsAnswer(
   return entry
 }
 
-/** New entries get ids like `program:do_you_offer_swim_lessons`, de-duplicated with a suffix. */
+/** `entryIdBase`, de-duplicated with a suffix. */
 async function createEntryId(db: D1Database, category: Category, title: string): Promise<string> {
-  const base = `${category.toLowerCase()}:${slugify(title)}`
+  const base = entryIdBase(category, title)
   let id = base
   for (let n = 2; await knowledge.getKnowledge(db, id); n++) id = `${base}_${n}`
   return id

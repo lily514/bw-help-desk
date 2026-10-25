@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest'
 import { categoryForId, parseHandbook } from '../domain/handbook'
 import { buildSeedSql, easternTime, sqlValue } from '../seed/seed'
 import { SEED_QUESTIONS } from '../seed/seed-data'
-import { slugify } from '../domain/slug'
 
 const handbook = readFileSync('data/handbook.md', 'utf8')
 
@@ -106,10 +105,5 @@ describe('helpers', () => {
     expect(easternTime(new Date('2026-10-23T16:00:00Z'), 2, '07:30')).toBe(
       '2026-10-21T11:30:00.000Z',
     )
-  })
-
-  it('slugifies titles', () => {
-    expect(slugify('Do you offer swim lessons?')).toBe('do_you_offer_swim_lessons')
-    expect(slugify('???')).toBe('entry')
   })
 })

@@ -1,4 +1,4 @@
-import { summarize, TEST_SCENARIOS } from '../../../shared/testScenarios'
+import { summarizeResults, TEST_SCENARIOS } from '../../../shared/testScenarios'
 import { ShieldCheckIcon } from '../shared/icons'
 import { RouteBadge } from './Badges'
 import { resultRow } from './testRun'
@@ -8,7 +8,7 @@ import { useTestMode } from './TestMode'
 export function TestResults() {
   const { run, results, enabled, setEnabled } = useTestMode()
   const byNum = new Map(results.map((r) => [r.scenarioNum, r]))
-  const { sent, passed, unsafeMisses } = summarize(results)
+  const { sent, passed, unsafeMisses } = summarizeResults(results)
   // After a reload the runner's state is gone; a learned #15 means #3's reply was saved.
   const savedReply = run.savedReply || results.some((r) => r.learned)
   const sending = run.status === 'running' ? run.sent + 1 : null

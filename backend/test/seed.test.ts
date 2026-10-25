@@ -1,9 +1,8 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { categoryForId, parseHandbook } from '../lib/handbook'
-import { buildSeedSql, easternTime, sqlValue } from '../lib/seed'
-import { SEED_QUESTIONS } from '../lib/seed-data'
-import { slugify } from '../lib/slug'
+import { categoryForId, parseHandbook } from '../domain/handbook'
+import { buildSeedSql, easternTime, sqlLiteral } from '../seed/seed'
+import { SEED_QUESTIONS } from '../seed/seed-data'
 
 const handbook = readFileSync('data/handbook.md', 'utf8')
 
@@ -90,26 +89,21 @@ describe('seed history', () => {
       "INSERT INTO parents (id, name, child_name, room, is_demo, is_test, created_at) VALUES ('sam-rivera', 'Sam Rivera', 'Maya', 'Twos', 0, 0,",
     )
     expect(sql.match(/INSERT INTO knowledge_entries/g)).toHaveLength(29)
-    expect(sql.match(/INSERT INTO requests/g)).toHaveLength(SEED_QUESTIONS.length)
+    expect(sql.match(/INSERT INTO inquiries/g)).toHaveLength(SEED_QUESTIONS.length)
     expect(sql).toContain("'What''s for lunch on Thursday?'")
   })
 })
 
 describe('helpers', () => {
   it('escapes SQL values', () => {
-    expect(sqlValue("Maya's")).toBe("'Maya''s'")
-    expect(sqlValue(null)).toBe('NULL')
-    expect(sqlValue(3)).toBe('3')
+    expect(sqlLiteral("Maya's")).toBe("'Maya''s'")
+    expect(sqlLiteral(null)).toBe('NULL')
+    expect(sqlLiteral(3)).toBe('3')
   })
 
   it('places seed times in Eastern (EDT) on the right day', () => {
     expect(easternTime(new Date('2026-10-23T16:00:00Z'), 2, '07:30')).toBe(
       '2026-10-21T11:30:00.000Z',
     )
-  })
-
-  it('slugifies titles', () => {
-    expect(slugify('Do you offer swim lessons?')).toBe('do_you_offer_swim_lessons')
-    expect(slugify('???')).toBe('entry')
   })
 })

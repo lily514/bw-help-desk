@@ -41,8 +41,8 @@ export interface RunnerDeps {
   /** Parent id for a scenario's child: Sam for Maya, a test parent otherwise. */
   parentFor: (child: TestScenario['child']) => Promise<string>
   /** Sends a question as a test message; resolves with the final route once the reply is done. */
-  ask: (parentId: string, text: string) => Promise<{ requestId: string; route: Route }>
-  reply: (requestId: string, text: string, saveAs?: SaveAs) => Promise<void>
+  ask: (parentId: string, text: string) => Promise<{ inquiryId: string; route: Route }>
+  reply: (inquiryId: string, text: string, saveAs?: SaveAs) => Promise<void>
   record: (result: {
     runId: string
     scenarioNum: number
@@ -157,7 +157,7 @@ export class TestRunner {
         if (scenario.num === LEARN_SCENARIO && this.saved) await this.saved
 
         let parentId: string
-        let sent: { requestId: string; route: Route }
+        let sent: { inquiryId: string; route: Route }
         try {
           parentId = await this.parentFor(scenario.child)
           sent = await this.deps.ask(parentId, scenario.question)
@@ -185,7 +185,7 @@ export class TestRunner {
           })
         }
 
-        if (sent.route !== 'answered') this.operatorReply(scenario, sent.requestId, sent.route)
+        if (sent.route !== 'answered') this.operatorReply(scenario, sent.inquiryId, sent.route)
 
         const isLast = this.index === TEST_SCENARIOS.length - 1
         if (!isLast)
@@ -208,12 +208,12 @@ export class TestRunner {
   }
 
   /** The automated operator: a canned reply ~3 seconds later; #3's is saved as knowledge. */
-  private operatorReply(scenario: TestScenario, requestId: string, route: Route): void {
+  private operatorReply(scenario: TestScenario, inquiryId: string, route: Route): void {
     const save = scenario.num === SAVE_SCENARIO
     const text = save ? SAVED_REPLY : CANNED_REPLIES[route as Exclude<Route, 'answered'>]
     const done = this.deps
       .sleep(REPLY_DELAY_MS)
-      .then(() => this.deps.reply(requestId, text, save ? { entryId: SAVE_ENTRY_ID } : undefined))
+      .then(() => this.deps.reply(inquiryId, text, save ? { entryId: SAVE_ENTRY_ID } : undefined))
       .then(
         () => true,
         () => false,

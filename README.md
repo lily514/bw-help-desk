@@ -19,22 +19,22 @@ The demo shows three things:
 Parent phone ─┐                          ┌─ Jev (via OpenRouter) → routing scores
               ├─ Cloudflare Worker ──────┤
 Operator ─────┘   Hono API under /api    ├─ OpenRouter chat      → streamed answer + citations
-laptop            + static React app     └─ D1 (SQLite)          → parents, messages, requests, KB
+laptop            + static React app     └─ D1 (SQLite)          → parents, messages, inquiries, KB
 ```
 
 - **One Worker, one URL.** The Worker serves the built React app as static assets and the API under `/api/*`.
 - **Chat pipeline** (`POST /api/chat`, Server-Sent Events):
   1. Save the message.
-  2. Score it with the router (`backend/lib/router.ts`). Jev answers six questions: topic, urgent, sensitive, child's health today, needs staff action, answerable from the KB. If Jev fails, a chat model answers the same questions as JSON.
-  3. Pick a route with `backend/lib/decide.ts`, a pure function covered by unit tests.
+  2. Score it with the router (`backend/ai/router.ts`). Jev answers six questions: topic, urgent, sensitive, child's health today, needs staff action, answerable from the KB. If Jev fails, a chat model answers the same questions as JSON.
+  3. Pick a route with `backend/domain/decide.ts`, a pure function covered by unit tests.
   4. Stream the answer from OpenRouter with a final `[[cite: …]]` line. The server holds the marker back, checks each id against the KB and sends the citations with the saved message.
   5. Any error or timeout falls back to Handed off with a polite message. The parent never sees a raw error.
 - **No retrieval.** The whole knowledge base (about 3k tokens) goes into every answer prompt, first, so the provider's prefix caching can reuse it.
-- **Knowledge base:** `data/handbook.md` is parsed into D1 at seed time (`backend/lib/seed.ts`). The operator edits entries in the Knowledge view. Policy facts are never hard-coded in the UI.
+- **Knowledge base:** `data/handbook.md` is parsed into D1 at seed time (`backend/seed/seed.ts`). The operator edits entries in the Knowledge view. Policy facts are never hard-coded in the UI.
 - **Live updates by polling.** The parent thread and the operator inbox poll every 2 seconds.
 - **Test mode runs in the browser.** The operator UI plays an automated parent and operator through the normal API, so the Worker runs no background jobs.
 
-Code lives in `backend/` (Worker), `frontend/` (React, plain CSS on the tokens in `frontend/src/shared/tokens.css`) and `shared/` (API types). `docs/PLAN.md` is the full spec; `docs/journal.md` has decision notes.
+Code lives in `backend/` (Worker, layered as described in `backend/README.md`), `frontend/` (React, plain CSS on the tokens in `frontend/src/shared/tokens.css`) and `shared/` (API types). `docs/PLAN.md` is the full spec; `docs/journal.md` has decision notes.
 
 ## Local setup
 

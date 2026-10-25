@@ -425,9 +425,9 @@
   display: none;
 }
 
-/* Request detail */
+/* Inquiry detail */
 
-.request {
+.inquiry {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -438,7 +438,7 @@
   border-radius: 18px;
 }
 
-.request-head {
+.inquiry-head {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
@@ -446,30 +446,30 @@
   gap: 12px;
 }
 
-.request-head > div:first-child {
+.inquiry-head > div:first-child {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.request-head h2 {
+.inquiry-head h2 {
   margin: 0;
   font-size: 22px;
   font-weight: 700;
 }
 
-.request-sub {
+.inquiry-sub {
   font-size: 14px;
   color: var(--muted);
 }
 
-.request-badges {
+.inquiry-badges {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.request-section {
+.inquiry-section {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -483,7 +483,7 @@
   color: var(--muted);
 }
 
-.request-message {
+.inquiry-message {
   margin: 0;
   padding: 14px 16px;
   border-radius: 14px;
@@ -493,12 +493,12 @@
   white-space: pre-wrap;
 }
 
-.request-earlier {
+.inquiry-earlier {
   font-size: 13px;
   color: var(--muted);
 }
 
-.request-error {
+.inquiry-error {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -506,7 +506,7 @@
   color: var(--unsafe);
 }
 
-.request-error p {
+.inquiry-error p {
   margin: 0;
 }
 
@@ -1510,7 +1510,7 @@
     padding: 16px 16px 0;
   }
 
-  .request {
+  .inquiry {
     padding: 20px 16px;
   }
 

@@ -15,7 +15,7 @@ export const CATEGORIES = [
 export type Category = (typeof CATEGORIES)[number]
 
 export type Route = 'answered' | 'looped_in' | 'handed_off' | 'urgent'
-export type RequestStatus = 'new' | 'seen' | 'forwarded' | 'replied'
+export type InquiryStatus = 'new' | 'seen' | 'forwarded' | 'replied'
 export type StaffRole = 'Director' | 'Office' | 'Classroom teacher' | 'Kitchen'
 export type RouterName = 'jev' | 'llm-fallback' | 'error'
 
@@ -35,11 +35,11 @@ export interface KnowledgeEntry {
   category: Category
   body: string
   fromParentQuestion: boolean
-  sourceRequestId: string | null
+  sourceInquiryId: string | null
   updatedAt: string
 }
 
-/** GET /api/kb/:id: the entry plus who it was saved from, for the editor's meta line. */
+/** GET /api/knowledge/:id: the entry plus who it was saved from, for the editor's meta line. */
 export interface KnowledgeEntryDetail extends KnowledgeEntry {
   sourceParentName: string | null
 }
@@ -55,17 +55,17 @@ export interface Message {
   citations: string[]
   staffName: string | null
   staffRole: string | null
-  requestId: string | null
+  inquiryId: string | null
   isTest: boolean
   createdAt: string
 }
 
-/** What the parent's thread needs to know about each request (no scores). */
-export interface ThreadRequest {
+/** What the parent's thread needs to know about each inquiry (no scores). */
+export interface ThreadInquiry {
   id: string
   messageId: string
   route: Route
-  status: RequestStatus
+  status: InquiryStatus
   suggestedRole: StaffRole
   forwardedTo: StaffRole | null
   createdAt: string
@@ -74,7 +74,7 @@ export interface ThreadRequest {
 
 export interface ThreadResponse {
   messages: Message[]
-  requests: ThreadRequest[]
+  inquiries: ThreadInquiry[]
   /** Pass back as `?since=` on the next poll. */
   serverTime: string
 }
@@ -84,7 +84,7 @@ export type ChatEvent =
   | { event: 'user'; data: { message: Message } }
   | {
       event: 'route'
-      data: { requestId: string; route: Route; status: RequestStatus; suggestedRole: StaffRole }
+      data: { inquiryId: string; route: Route; status: InquiryStatus; suggestedRole: StaffRole }
     }
   | { event: 'delta'; data: { text: string } }
   | { event: 'done'; data: { message: Message; citations: string[] } }
@@ -100,7 +100,7 @@ export const SENSITIVE_KINDS = [
 ] as const
 export type SensitiveKind = (typeof SENSITIVE_KINDS)[number]
 
-/** Router output, stored as JSON on each request. Values are 0–1 except topic and sensitive_kind. */
+/** Router output, stored as JSON on each inquiry. Values are 0–1 except topic and sensitive_kind. */
 export interface RouteScores {
   topic: Category
   /** Which kind of sensitive topic, for the operator's "why" line. Absent in seed data. */
@@ -122,7 +122,7 @@ export interface InboxItem {
   /** The parent's message. */
   text: string
   route: Route
-  status: RequestStatus
+  status: InquiryStatus
   suggestedRole: StaffRole
   forwardedTo: StaffRole | null
   isTest: boolean
@@ -130,8 +130,8 @@ export interface InboxItem {
   updatedAt: string
 }
 
-export interface RequestDetail {
-  request: InboxItem & {
+export interface InquiryDetail {
+  inquiry: InboxItem & {
     reason: string
     scores: RouteScores | null
     router: RouterName
@@ -142,17 +142,18 @@ export interface RequestDetail {
   earlier: { text: string; route: Route; createdAt: string } | null
   /** What the parent already heard from the AI, if it sent an answer (not an acknowledgement). */
   aiAnswer: { text: string; citations: string[] } | null
-  /** Staff replies already sent on this request. */
+  /** Staff replies already sent on this inquiry. */
   replies: Message[]
-  /** Entries for "Save as answer", with the best match preselected. */
+  /** Entries for "Save as answer". */
   knowledge: { id: string; title: string; category: Category }[]
-  bestMatchId: string | null
+  /** The entry "Add to existing entry" starts on (backend/domain/entrySuggestion.ts). */
+  suggestedEntryId: string | null
 }
 
 export type SaveAs = { entryId: string } | { create: true }
 
 export interface ReplyResult {
-  request: InboxItem
+  inquiry: InboxItem
   message: Message
   savedEntry: KnowledgeEntry | null
 }

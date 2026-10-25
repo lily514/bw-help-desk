@@ -1,4 +1,4 @@
-import type { RequestStatus, StaffRole, ThreadRequest } from '../../../shared/types'
+import type { InquiryStatus, StaffRole, ThreadInquiry } from '../../../shared/types'
 import { formatTime } from '../shared/format'
 
 export type StepState = 'done' | 'current' | 'pending'
@@ -6,7 +6,7 @@ export type StepState = 'done' | 'current' | 'pending'
 export const STEP_LABELS = ['Delivered', 'Seen', 'Replied'] as const
 
 /** Delivered → Seen → Replied (PLAN.md 4.3). `new` shows as Delivered. */
-export function trackerSteps(status: RequestStatus): [StepState, StepState, StepState] {
+export function trackerSteps(status: InquiryStatus): [StepState, StepState, StepState] {
   switch (status) {
     case 'new':
       return ['done', 'current', 'pending']
@@ -43,13 +43,13 @@ export interface StatusCardModel {
   showContact: boolean
 }
 
-export function statusCard(request: ThreadRequest, childName: string): StatusCardModel | null {
-  if (request.route === 'answered') return null
-  const variant = request.route
+export function statusCard(inquiry: ThreadInquiry, childName: string): StatusCardModel | null {
+  if (inquiry.route === 'answered') return null
+  const variant = inquiry.route
 
   let title: string
-  if (request.forwardedTo) title = `Forwarded to ${roleLabel(request.forwardedTo, childName)}`
-  else if (variant === 'urgent') title = `Staff alerted at ${formatTime(request.createdAt)}`
+  if (inquiry.forwardedTo) title = `Forwarded to ${roleLabel(inquiry.forwardedTo, childName)}`
+  else if (variant === 'urgent') title = `Staff alerted at ${formatTime(inquiry.createdAt)}`
   else if (variant === 'handed_off') title = 'Sent to Dana, Director'
   else title = 'Shared with the front desk'
 

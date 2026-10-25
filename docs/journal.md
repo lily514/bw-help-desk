@@ -74,4 +74,7 @@
 - started looking up how the deploy to cloudflare will work
 -test script is hard coded, no ui to add test cases
 - might consider checking css for duped classes
-- the lib backend structure is a little flat for me, I prefer more nesting to put similar things nearby eachother
+- the lib backend structure is a little flat for me, I prefer more nesting to put similar things nearby eachother, mvc style refactor done
+- some names were confusing to me, did some refactoring to make "onboarding" easier. happy enough with outcomes.
+- starting to feel like I'm just being fiddly with things, so going to stop and deploy
+

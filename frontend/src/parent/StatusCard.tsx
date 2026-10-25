@@ -1,5 +1,5 @@
 import { CENTER_PHONE, CENTER_PHONE_TEL, HANDOFF_REPLY_TIME } from '../../../shared/copy'
-import type { ThreadRequest } from '../../../shared/types'
+import type { ThreadInquiry } from '../../../shared/types'
 import { BellIcon, CheckIcon, PhoneIcon, UserIcon, UsersIcon } from '../shared/icons'
 import { STEP_LABELS, statusCard, trackerSteps, type StepState } from './status'
 
@@ -17,15 +17,15 @@ function StepDot({ state }: { state: StepState }) {
 }
 
 /** Status card with the Delivered → Seen → Replied tracker (PLAN.md 4.3). */
-export function StatusCard({ request, childName }: { request: ThreadRequest; childName: string }) {
-  const card = statusCard(request, childName)
+export function StatusCard({ inquiry, childName }: { inquiry: ThreadInquiry; childName: string }) {
+  const card = statusCard(inquiry, childName)
   if (!card) return null
-  const steps = trackerSteps(request.status)
+  const steps = trackerSteps(inquiry.status)
   const emphasized = steps.includes('current') ? steps.indexOf('current') : steps.length - 1
   const Icon = CARD_ICONS[card.variant]
 
   return (
-    <section aria-label="Request status" className={`status-card status-${card.variant}`}>
+    <section aria-label="Question status" className={`status-card status-${card.variant}`}>
       <div className="status-title">
         <Icon size={18} />
         <span>{card.title}</span>

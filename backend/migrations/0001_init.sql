@@ -18,14 +18,14 @@ CREATE TABLE messages (
   citations TEXT,
   staff_name TEXT,
   staff_role TEXT,
-  request_id TEXT,
+  inquiry_id TEXT,
   is_test INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL
 );
 
 CREATE INDEX messages_parent_created ON messages (parent_id, created_at);
 
-CREATE TABLE requests (
+CREATE TABLE inquiries (
   id TEXT PRIMARY KEY,
   parent_id TEXT NOT NULL,
   message_id TEXT NOT NULL,
@@ -43,8 +43,8 @@ CREATE TABLE requests (
   updated_at TEXT NOT NULL
 );
 
-CREATE INDEX requests_parent ON requests (parent_id, created_at);
-CREATE INDEX requests_created ON requests (created_at);
+CREATE INDEX inquiries_parent ON inquiries (parent_id, created_at);
+CREATE INDEX inquiries_created ON inquiries (created_at);
 
 CREATE TABLE knowledge_entries (
   id TEXT PRIMARY KEY,
@@ -52,7 +52,7 @@ CREATE TABLE knowledge_entries (
   category TEXT NOT NULL,
   body TEXT NOT NULL,
   from_parent_question INTEGER NOT NULL DEFAULT 0,
-  source_request_id TEXT,
+  source_inquiry_id TEXT,
   updated_at TEXT NOT NULL
 );
 

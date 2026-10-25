@@ -9,7 +9,7 @@ function entry(id: string, title: string, category: KnowledgeEntry['category']):
     category,
     body: '',
     fromParentQuestion: false,
-    sourceRequestId: null,
+    sourceInquiryId: null,
     updatedAt: '2026-08-01T00:00:00.000Z',
   }
 }

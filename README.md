@@ -5,7 +5,7 @@ A prototype AI front desk for a fictional daycare, Maple Grove Early Learning Ce
 - **Parent help desk** (`/parent`, built for a phone): parents ask questions in a chat. The AI answers from the center's own policies, cites them, and hands anything sensitive to a person.
 - **Operator control center** (`/operator`, built for a laptop, works on a phone): Dana, the Director, sees what the AI couldn't handle, forwards or replies, and can save a reply as a new answer so the AI handles the question next time.
 
-Live URL: TODO
+Live URL: https://maple-grove-front-desk.lily514.workers.dev
 
 The demo shows three things:
 

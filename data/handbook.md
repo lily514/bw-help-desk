@@ -6,7 +6,7 @@
 ## [center:contact] Contact & Front Desk (updated 2026-08-01)
 - Maple Grove Early Learning Center, 210 Orchard Lane, Maple Grove, IN.
 - Director: Dana Whitfield. Office manager: Luis Ortega.
-- Phone: (765) 555-0142. General email: hello@maplegrove.example (all office staff). Director: dana@maplegrove.example.
+- Phone: XXX-XXX-XXXX. General email: hello@maplegrove.example (all office staff). Director: dana@maplegrove.example.
 - Office answers phone/email 8:00am–4:00pm, Mon–Fri. Director aims to meet within 24 hours when a private meeting is requested.
 - Ages served: 6 weeks through 10 years. Licensed by the Indiana Division of Family and Children; inspected annually. Max enrollment 200.
 

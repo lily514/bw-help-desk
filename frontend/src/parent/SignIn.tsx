@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router'
-import { UserPlusIcon } from '../shared/icons'
+import { ChevronLeftIcon, UserPlusIcon } from '../shared/icons'
 import { Logo } from '../shared/Logo'
 import { DEMO_PARENT_ID, setParentId } from './session'
 
@@ -38,6 +38,10 @@ export function SignIn({ onSignIn }: { onSignIn: (id: string) => void }) {
           <br />
           Evaluators: create your own parent and child to start with an empty thread.
         </p>
+        <Link to="/" className="signin-home">
+          <ChevronLeftIcon size={16} />
+          Back to demo home
+        </Link>
       </div>
     </main>
   )

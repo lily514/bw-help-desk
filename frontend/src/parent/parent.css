@@ -114,6 +114,24 @@
   gap: 14px;
 }
 
+/* Leaves the parent app for the landing page, e.g. to open the operator view. */
+.signin-home {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: var(--tap);
+  padding: 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.signin-home:hover {
+  color: var(--accent-hover);
+}
+
 /* Create a demo parent */
 
 .subheader {

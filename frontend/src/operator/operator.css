@@ -928,19 +928,28 @@
   color: var(--muted);
 }
 
-.from-parent-tag {
+.kb-tag {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
   border-radius: 10px;
-  background: var(--staff-bubble);
-  color: var(--staff-bubble-text);
   font-size: 12px;
   font-weight: 600;
 }
 
-.from-parent-tag-lg {
+/* Text that came from Dana's replies. */
+.kb-tag-staff {
+  background: var(--staff-bubble);
+  color: var(--staff-bubble-text);
+}
+
+.kb-tag-neutral {
+  background: var(--bg);
+  color: var(--text-2);
+}
+
+.kb-tag-lg {
   gap: 5px;
   padding: 4px 10px;
   border-radius: 12px;
@@ -1029,6 +1038,64 @@
 .field-hint {
   font-size: 13px;
   color: var(--muted);
+}
+
+/* Dana's saved replies on an entry, kept apart from its own text. */
+.kb-additions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--staff-bubble-border);
+  border-radius: 14px;
+  background: var(--staff-bubble);
+}
+
+.kb-additions-title {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--staff-bubble-text);
+}
+
+.kb-additions .field-hint,
+.kb-additions > p {
+  margin: 0;
+}
+
+.kb-addition {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kb-addition-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.kb-addition textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--staff-bubble-border);
+  border-radius: 12px;
+  background: var(--surface);
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--text);
+  resize: vertical;
+}
+
+.kb-addition textarea:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-tint);
 }
 
 .kb-editor-actions {

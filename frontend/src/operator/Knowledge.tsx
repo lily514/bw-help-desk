@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import type { KnowledgeEntry } from '../../../shared/types'
 import { api } from '../shared/api'
 import { formatDate } from '../shared/format'
-import { ChatSquareIcon, PlusIcon } from '../shared/icons'
+import { BookIcon, ChatSquareIcon, PlusIcon, UserIcon } from '../shared/icons'
 import { RetryButton } from './RetryButton'
 import { entryPath, groupByCategory, previewLine } from './knowledgeModel'
 
@@ -63,13 +63,13 @@ export function Knowledge() {
                   <Link
                     key={entry.id}
                     to={entryPath(entry.id)}
-                    className={`kb-card${entry.fromParentQuestion ? ' is-learned' : ''}`}
+                    className={`kb-card${isFromDana(entry) ? ' is-learned' : ''}`}
                   >
                     <span className="kb-card-title">{entry.title}</span>
                     <span className="kb-card-preview">{previewLine(entry.body)}</span>
                     <span className="kb-card-meta">
                       <span>Updated {formatDate(entry.updatedAt)}</span>
-                      {entry.fromParentQuestion && <FromParentTag />}
+                      <SourceTags entry={entry} />
                     </span>
                   </Link>
                 ))}
@@ -81,11 +81,53 @@ export function Knowledge() {
   )
 }
 
-export function FromParentTag({ large }: { large?: boolean }) {
+/** True when any of the entry's text came from Dana rather than the handbook. */
+function isFromDana(entry: Pick<KnowledgeEntry, 'source' | 'additions'>): boolean {
+  return entry.source !== 'handbook' || entry.additions.length > 0
+}
+
+/**
+ * Where an entry's text came from: "From a parent question" or "Written by you" for entries
+ * Dana created, plus "+N saved replies" for replies added to it. Handbook entries get no tag
+ * in the list; the editor (`withHandbook`) labels them too.
+ */
+export function SourceTags({
+  entry,
+  large,
+  withHandbook,
+}: {
+  entry: Pick<KnowledgeEntry, 'source' | 'additions'>
+  large?: boolean
+  withHandbook?: boolean
+}) {
+  const size = large ? 12 : 11
+  const cls = (variant: string) => `kb-tag kb-tag-${variant}${large ? ' kb-tag-lg' : ''}`
+  const n = entry.additions.length
   return (
-    <span className={`from-parent-tag${large ? ' from-parent-tag-lg' : ''}`}>
-      <ChatSquareIcon size={large ? 12 : 11} />
-      From a parent question
-    </span>
+    <>
+      {entry.source === 'handbook' && withHandbook && (
+        <span className={cls('neutral')}>
+          <BookIcon size={size} />
+          From the handbook
+        </span>
+      )}
+      {entry.source === 'reply' && (
+        <span className={cls('staff')}>
+          <ChatSquareIcon size={size} />
+          From a parent question
+        </span>
+      )}
+      {entry.source === 'manual' && (
+        <span className={cls('neutral')}>
+          <UserIcon size={size} />
+          Written by you
+        </span>
+      )}
+      {n > 0 && (
+        <span className={cls('staff')}>
+          <ChatSquareIcon size={size} />+{n} saved {n === 1 ? 'reply' : 'replies'}
+        </span>
+      )}
+    </>
   )
 }

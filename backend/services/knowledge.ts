@@ -21,37 +21,42 @@ export async function getEntryDetail(db: D1Database, id: string): Promise<Knowle
   return { ...entry, sourceParentName }
 }
 
-export async function createEntry(
-  db: D1Database,
-  input: EntryInput,
-  source: { fromParentQuestion: boolean; sourceInquiryId: string | null },
-): Promise<KnowledgeEntry> {
+/** "New entry" in the editor. */
+export async function createEntry(db: D1Database, input: EntryInput): Promise<KnowledgeEntry> {
   const entry: KnowledgeEntry = {
     id: await createEntryId(db, input.category, input.title),
     ...input,
-    ...source,
+    source: 'manual',
+    sourceInquiryId: null,
+    additions: [],
     updatedAt: new Date().toISOString(),
   }
   await knowledge.insertKnowledge(db, entry)
   return entry
 }
 
-/** Saving bumps `updated_at`; the next chat call uses the new text automatically. */
+/**
+ * Saving bumps `updated_at`; the next chat call uses the new text automatically. With
+ * `additions`, edits the entry's saved replies too: the text of each listed one, and any
+ * left out are removed.
+ */
 export async function updateEntry(
   db: D1Database,
   id: string,
   input: EntryInput,
+  additions?: { id: string; text: string }[],
 ): Promise<KnowledgeEntry> {
   const existing = await knowledge.getKnowledge(db, id)
   if (!existing) throw new NotFoundError('Entry not found')
   const updatedAt = new Date().toISOString()
-  await knowledge.updateKnowledge(db, id, { ...input, updatedAt })
-  return { ...existing, ...input, updatedAt }
+  await knowledge.updateKnowledge(db, id, { ...input, updatedAt }, additions)
+  return (await knowledge.getKnowledge(db, id))!
 }
 
 /**
- * "Save as answer" on Dana's reply (PLAN.md 4.4): append it to an existing entry as a
- * new paragraph, or create an entry titled with the parent's question.
+ * "Save as answer" on Dana's reply (PLAN.md 4.4): add it to an existing entry as an
+ * addition (kept apart from the handbook text), or create an entry titled with the
+ * parent's question.
  */
 export async function saveReplyAsAnswer(
   db: D1Database,
@@ -61,13 +66,13 @@ export async function saveReplyAsAnswer(
   if ('entryId' in saveAs) {
     const entry = await knowledge.getKnowledge(db, saveAs.entryId)
     if (!entry) throw new NotFoundError('Knowledge entry not found')
-    const updated = {
-      ...entry,
-      body: `${entry.body.trimEnd()}\n\n${reply.text}`,
-      updatedAt: reply.now,
-    }
-    await knowledge.updateKnowledge(db, entry.id, updated)
-    return updated
+    await knowledge.insertAddition(db, entry.id, {
+      id: crypto.randomUUID(),
+      text: reply.text,
+      sourceInquiryId: reply.inquiryId,
+      createdAt: reply.now,
+    })
+    return knowledge.getKnowledge(db, entry.id)
   }
 
   if (!('create' in saveAs)) return null
@@ -78,8 +83,9 @@ export async function saveReplyAsAnswer(
     title,
     category: reply.topic,
     body: reply.text,
-    fromParentQuestion: true,
+    source: 'reply',
     sourceInquiryId: reply.inquiryId,
+    additions: [],
     updatedAt: reply.now,
   }
   await knowledge.insertKnowledge(db, entry)

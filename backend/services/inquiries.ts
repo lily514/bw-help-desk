@@ -1,4 +1,5 @@
 import { DIRECTOR, HANDED_OFF_ACK, URGENT_ACK } from '../../shared/copy'
+import { entryText } from '../../shared/knowledge'
 import type {
   Category,
   InboxItem,
@@ -60,7 +61,11 @@ export async function getInquiryDetail(db: D1Database, id: string): Promise<Inqu
     aiAnswer: answer ? { text: answer.text, citations: answer.citations } : null,
     replies: thread.filter((m) => m.role === 'staff'),
     knowledge: kb.map(({ id, title, category }) => ({ id, title, category })),
-    suggestedEntryId: suggestEntry(row.text, row.topic as Category, kb),
+    suggestedEntryId: suggestEntry(
+      row.text,
+      row.topic as Category,
+      kb.map((e) => ({ ...e, body: entryText(e) })),
+    ),
   }
 }
 

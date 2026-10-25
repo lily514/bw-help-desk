@@ -8,8 +8,9 @@ function entry(id: string, title: string, category: KnowledgeEntry['category']):
     title,
     category,
     body: '',
-    fromParentQuestion: false,
+    source: 'handbook',
     sourceInquiryId: null,
+    additions: [],
     updatedAt: '2026-08-01T00:00:00.000Z',
   }
 }

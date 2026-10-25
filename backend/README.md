@@ -7,7 +7,8 @@ The Cloudflare Worker: a Hono API under `/api`. The React app is served as stati
 - **Inquiry:** one parent question and how it was handled (route, scores, status, who it was forwarded to). Every parent message gets one, including the ones the AI answered. Table `inquiries`; messages link to it with `inquiry_id`.
 - **Route:** how an inquiry was handled: `answered` (AI answers), `looped_in`, `handed_off` or `urgent`. Unrelated to HTTP routing; the HTTP handlers live in `controllers/`.
 - **Router and scores:** `ai/router.ts` asks Jev (or the fallback chat model) six questions about a message and returns their scores. `domain/decide.ts` turns the scores into a route.
-- **KB entry:** one knowledge base entry (`knowledge_entries`), seeded from `data/handbook.md` or saved from a reply.
+- **KB entry:** one knowledge base entry (`knowledge_entries`), seeded from `data/handbook.md` (`source = 'handbook'`), created from a reply (`reply`) or in the editor (`manual`).
+- **Addition:** a reply Dana saved onto an existing entry (`knowledge_additions`). Kept apart from the entry's body so handbook text stays distinguishable; `shared/knowledge.ts` `entryText` joins them for the AI and parents.
 
 ## Layers
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Message, ThreadRequest } from '../../../shared/types'
+import type { Message, ThreadInquiry } from '../../../shared/types'
 import { roleLabel, statusCard, trackerSteps } from './status'
 import { buildThreadItems } from './thread'
 
@@ -7,7 +7,7 @@ function msg(
   id: string,
   role: Message['role'],
   createdAt: string,
-  requestId: string | null = null,
+  inquiryId: string | null = null,
 ): Message {
   return {
     id,
@@ -17,7 +17,7 @@ function msg(
     citations: [],
     staffName: null,
     staffRole: null,
-    requestId,
+    inquiryId,
     isTest: false,
     createdAt,
   }
@@ -25,9 +25,9 @@ function msg(
 
 function req(
   id: string,
-  route: ThreadRequest['route'],
-  extra: Partial<ThreadRequest> = {},
-): ThreadRequest {
+  route: ThreadInquiry['route'],
+  extra: Partial<ThreadInquiry> = {},
+): ThreadInquiry {
   return {
     id,
     messageId: `${id}-q`,
@@ -51,7 +51,7 @@ describe('trackerSteps', () => {
 })
 
 describe('statusCard', () => {
-  it('has no card for answered requests', () => {
+  it('has no card for answered inquiries', () => {
     expect(statusCard(req('r', 'answered'), 'Maya')).toBeNull()
   })
 

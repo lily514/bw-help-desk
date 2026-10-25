@@ -50,10 +50,10 @@ function writeEnabled(on: boolean) {
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
 /** Sends one test question and reads the stream to the end; the last route event wins. */
-async function ask(parentId: string, text: string): Promise<{ requestId: string; route: Route }> {
+async function ask(parentId: string, text: string): Promise<{ inquiryId: string; route: Route }> {
   for (;;) {
     try {
-      let sent: { requestId: string; route: Route } | null = null
+      let sent: { inquiryId: string; route: Route } | null = null
       for await (const event of api.chat(parentId, text, true)) {
         if (event.event === 'route') sent = event.data
       }
@@ -77,8 +77,8 @@ const deps: RunnerDeps = {
     return (await api.createParent({ name, childName: child, room, isTest: true })).id
   },
   ask,
-  reply: async (requestId, text, saveAs) => {
-    await api.reply(requestId, text, saveAs)
+  reply: async (inquiryId, text, saveAs) => {
+    await api.reply(inquiryId, text, saveAs)
   },
   record: (result) => api.testResult(result),
   sleep,

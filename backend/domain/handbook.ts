@@ -52,7 +52,7 @@ export function parseHandbook(markdown: string): KnowledgeEntry[] {
           category: categoryForId(id),
           body: '',
           fromParentQuestion: false,
-          sourceRequestId: null,
+          sourceInquiryId: null,
           updatedAt: `${date}T12:00:00.000Z`,
         },
         lines: [],

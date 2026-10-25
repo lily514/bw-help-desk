@@ -6,14 +6,14 @@ import { ChevronLeftIcon } from '../shared/icons'
 import { RouteBadge, TestBadge } from './Badges'
 import { inboxSummary, listTime, statusLabel } from './model'
 import { useInbox } from './OperatorApp'
-import { RequestPanel } from './RequestPanel'
+import { InquiryPanel } from './InquiryPanel'
 
 /** Two panes on a laptop; list or detail on a phone (PLAN.md 4.4). */
 export function Inbox() {
-  const { requestId } = useParams()
+  const { inquiryId } = useParams()
   const navigate = useNavigate()
   const { items, failed, fresh, upsert } = useInbox()
-  const selected = items?.find((i) => i.id === requestId)
+  const selected = items?.find((i) => i.id === inquiryId)
 
   // Opening an item marks it Seen.
   const marking = useRef<string | null>(null)
@@ -27,7 +27,7 @@ export function Inbox() {
   }, [selected, upsert])
 
   return (
-    <div className={`inbox${requestId ? ' has-selection' : ''}`}>
+    <div className={`inbox${inquiryId ? ' has-selection' : ''}`}>
       <section className="inbox-list" aria-label="Conversations">
         <div className="inbox-list-head">
           <span className="inbox-list-title">Needs you</span>
@@ -50,7 +50,7 @@ export function Inbox() {
           <InboxRow
             key={item.id}
             item={item}
-            selected={item.id === requestId}
+            selected={item.id === inquiryId}
             fresh={fresh.has(item.id)}
             onOpen={() => navigate(`/operator/inbox/${item.id}`)}
           />
@@ -63,11 +63,11 @@ export function Inbox() {
           Inbox
         </Link>
         {selected ? (
-          <RequestPanel key={selected.id} item={selected} />
+          <InquiryPanel key={selected.id} item={selected} />
         ) : (
           <div className="empty-card">
             <p>
-              {requestId && items
+              {inquiryId && items
                 ? 'This conversation is no longer in the inbox.'
                 : 'Select a conversation to read it and reply.'}
             </p>

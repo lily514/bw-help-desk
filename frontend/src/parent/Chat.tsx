@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { CENTER_PHONE } from '../../../shared/copy'
-import type { Message, Parent, ThreadRequest, ThreadResponse } from '../../../shared/types'
+import type { Message, Parent, ThreadInquiry, ThreadResponse } from '../../../shared/types'
 import { api, ApiError } from '../shared/api'
 import { firstName } from '../shared/format'
 import { ArrowUpIcon, LogOutIcon } from '../shared/icons'
@@ -17,7 +17,7 @@ import { UrgentBanner } from './UrgentBanner'
 /** The AI reply currently streaming in. */
 interface Pending {
   localQuestionId: string
-  requestId?: string
+  inquiryId?: string
   text: string
   startedAt: string
 }
@@ -28,7 +28,7 @@ export function Chat({ parentId, onSignOut }: { parentId: string; onSignOut: () 
   const navigate = useNavigate()
   const [parent, setParent] = useState<Parent | null>(null)
   const [messages, setMessages] = useState<Map<string, Message>>(new Map())
-  const [requests, setRequests] = useState<Map<string, ThreadRequest>>(new Map())
+  const [inquiries, setInquiries] = useState<Map<string, ThreadInquiry>>(new Map())
   const [titles, setTitles] = useState<Record<string, string>>({})
   const [loadError, setLoadError] = useState(false)
   const [loadAttempt, setLoadAttempt] = useState(0)
@@ -48,7 +48,7 @@ export function Chat({ parentId, onSignOut }: { parentId: string; onSignOut: () 
     setPending(next)
   }
 
-  const merge = useCallback((incoming: Message[], incomingRequests: ThreadRequest[]) => {
+  const merge = useCallback((incoming: Message[], incomingInquiries: ThreadInquiry[]) => {
     if (incoming.length) {
       setMessages((prev) => {
         const next = new Map(prev)
@@ -58,16 +58,16 @@ export function Chat({ parentId, onSignOut }: { parentId: string; onSignOut: () 
       // The poll can deliver the saved reply before the stream's `done` event.
       const current = pendingRef.current
       if (
-        current?.requestId &&
-        incoming.some((m) => m.role === 'ai' && m.requestId === current.requestId)
+        current?.inquiryId &&
+        incoming.some((m) => m.role === 'ai' && m.inquiryId === current.inquiryId)
       ) {
         updatePending(null)
       }
     }
-    if (incomingRequests.length) {
-      setRequests((prev) => {
+    if (incomingInquiries.length) {
+      setInquiries((prev) => {
         const next = new Map(prev)
-        for (const r of incomingRequests) next.set(r.id, r)
+        for (const r of incomingInquiries) next.set(r.id, r)
         return next
       })
     }
@@ -75,7 +75,7 @@ export function Chat({ parentId, onSignOut }: { parentId: string; onSignOut: () 
 
   const applyThread = useCallback(
     (thread: ThreadResponse) => {
-      merge(thread.messages, thread.requests)
+      merge(thread.messages, thread.inquiries)
       cursor.current = thread.serverTime
     },
     [merge],
@@ -141,7 +141,7 @@ export function Chat({ parentId, onSignOut }: { parentId: string; onSignOut: () 
       citations: [],
       staffName: null,
       staffRole: null,
-      requestId: null,
+      inquiryId: null,
       isTest: false,
       createdAt: now,
     }
@@ -161,14 +161,14 @@ export function Chat({ parentId, onSignOut }: { parentId: string; onSignOut: () 
             return next
           })
           const current = currentPending()
-          if (current) updatePending({ ...current, requestId: saved.requestId ?? undefined })
+          if (current) updatePending({ ...current, inquiryId: saved.inquiryId ?? undefined })
         } else if (event.event === 'route') {
-          const { requestId, route, status, suggestedRole } = event.data
-          setRequests((prev) => {
-            const existing = prev.get(requestId)
+          const { inquiryId, route, status, suggestedRole } = event.data
+          setInquiries((prev) => {
+            const existing = prev.get(inquiryId)
             const at = new Date().toISOString()
-            return new Map(prev).set(requestId, {
-              id: requestId,
+            return new Map(prev).set(inquiryId, {
+              id: inquiryId,
               messageId: savedQuestionId,
               route,
               status,
@@ -203,17 +203,17 @@ export function Chat({ parentId, onSignOut }: { parentId: string; onSignOut: () 
     }
   }
 
-  const askPerson = async (requestId: string) => {
-    setAsking((prev) => new Set(prev).add(requestId))
+  const askPerson = async (inquiryId: string) => {
+    setAsking((prev) => new Set(prev).add(inquiryId))
     try {
-      const updated = await api.askPerson(requestId)
-      setRequests((prev) => new Map(prev).set(updated.id, updated))
+      const updated = await api.askPerson(inquiryId)
+      setInquiries((prev) => new Map(prev).set(updated.id, updated))
     } catch {
       setNotice(`We couldn't reach Dana just now. Please call the center at ${CENTER_PHONE}.`)
     } finally {
       setAsking((prev) => {
         const next = new Set(prev)
-        next.delete(requestId)
+        next.delete(inquiryId)
         return next
       })
     }
@@ -236,15 +236,15 @@ export function Chat({ parentId, onSignOut }: { parentId: string; onSignOut: () 
         citations: [],
         staffName: null,
         staffRole: null,
-        requestId: pending.requestId ?? null,
+        inquiryId: pending.inquiryId ?? null,
         isTest: false,
         createdAt: new Date(newest + 1).toISOString(),
       })
     }
-    return buildThreadItems(all, [...requests.values()])
-  }, [messages, requests, pending, parentId])
+    return buildThreadItems(all, [...inquiries.values()])
+  }, [messages, inquiries, pending, parentId])
 
-  const showUrgent = [...requests.values()].some(
+  const showUrgent = [...inquiries.values()].some(
     (r) => r.route === 'urgent' && r.status !== 'replied',
   )
 
@@ -327,13 +327,13 @@ export function Chat({ parentId, onSignOut }: { parentId: string; onSignOut: () 
                 )
               }
               if (item.kind === 'status') {
-                return <StatusCard key={item.key} request={item.request} childName={childName} />
+                return <StatusCard key={item.key} inquiry={item.inquiry} childName={childName} />
               }
               const m = item.message
               if (m.role === 'parent') return <ParentBubble key={item.key} message={m} />
               if (m.role === 'staff') return <StaffBubble key={item.key} message={m} />
               if (m.id === PENDING_ID && !m.text) return <TypingBubble key={item.key} />
-              const request = m.requestId ? requests.get(m.requestId) : undefined
+              const inquiry = m.inquiryId ? inquiries.get(m.inquiryId) : undefined
               return (
                 <AiAnswer
                   key={item.key}
@@ -341,10 +341,10 @@ export function Chat({ parentId, onSignOut }: { parentId: string; onSignOut: () 
                   titles={titles}
                   onOpenCitation={setSheetId}
                   streaming={m.id === PENDING_ID}
-                  askingPerson={!!request && asking.has(request.id)}
+                  askingPerson={!!inquiry && asking.has(inquiry.id)}
                   onAskPerson={
-                    request?.route === 'answered' && m.id !== PENDING_ID
-                      ? () => askPerson(request.id)
+                    inquiry?.route === 'answered' && m.id !== PENDING_ID
+                      ? () => askPerson(inquiry.id)
                       : undefined
                   }
                 />

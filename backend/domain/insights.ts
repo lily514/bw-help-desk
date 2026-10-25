@@ -2,7 +2,7 @@ import type { Category, Insights, Route } from '../../shared/types'
 
 export const INSIGHTS_DAYS = 7
 
-/** One non-test request in the window, with the parent's question. */
+/** One non-test inquiry in the window, with the parent's question. */
 export interface InsightRow {
   route: Route
   topic: Category

@@ -11,7 +11,7 @@ export async function getParent(db: D1Database, id: string): Promise<Parent> {
 
 /**
  * Evaluators create their own demo parent (is_demo = 1, cleared on Reset). Test mode
- * creates its scripted parents with `isTest`, so their requests are excluded from Insights.
+ * creates its scripted parents with `isTest`, so their inquiries are excluded from Insights.
  */
 export async function createDemoParent(
   db: D1Database,

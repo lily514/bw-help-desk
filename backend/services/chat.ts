@@ -4,7 +4,7 @@ import { streamAnswer } from '../ai/answer'
 import { routeQuestion, type RouteInput } from '../ai/router'
 import { listKnowledge } from '../db/knowledge'
 import { insertMessage, listMessages } from '../db/messages'
-import { insertRequest, markRequestHandedOff, type NewRequest } from '../db/requests'
+import { insertInquiry, markInquiryHandedOff, type NewInquiry } from '../db/inquiries'
 import { decide } from '../domain/decide'
 import type { Env } from '../env'
 import { getParent } from './parents'
@@ -12,7 +12,7 @@ import { getParent } from './parents'
 /** A saved question, with what answering it needs. */
 export interface Question {
   parent: Parent
-  requestId: string
+  inquiryId: string
   message: Message
   kb: KnowledgeEntry[]
   history: Message[]
@@ -26,7 +26,7 @@ export async function saveQuestion(
   const parent = await getParent(db, input.parentId)
   const [kb, history] = await Promise.all([listKnowledge(db), listMessages(db, parent.id)])
 
-  const requestId = crypto.randomUUID()
+  const inquiryId = crypto.randomUUID()
   const message: Message = {
     id: crypto.randomUUID(),
     parentId: parent.id,
@@ -35,12 +35,12 @@ export async function saveQuestion(
     citations: [],
     staffName: null,
     staffRole: null,
-    requestId,
+    inquiryId,
     isTest: input.isTest || parent.isTest,
     createdAt: new Date().toISOString(),
   }
   await insertMessage(db, message)
-  return { parent, requestId, message, kb, history }
+  return { parent, inquiryId, message, kb, history }
 }
 
 /**
@@ -51,7 +51,7 @@ export async function saveQuestion(
  */
 export async function answerQuestion(
   env: Env,
-  { parent, requestId, message: question, kb, history }: Question,
+  { parent, inquiryId, message: question, kb, history }: Question,
   send: (event: ChatEvent) => Promise<void>,
 ): Promise<void> {
   const db = env.DB
@@ -59,19 +59,19 @@ export async function answerQuestion(
   await send({ event: 'user', data: { message: question } })
 
   const now = new Date()
-  const request: NewRequest = {
-    id: requestId,
+  const inquiry: NewInquiry = {
+    id: inquiryId,
     parentId: parent.id,
     messageId: question.id,
     isTest: question.isTest,
     createdAt: new Date().toISOString(),
     ...(await routeOrHandOff(env, { parent, question: text, kb, now })),
   }
-  await insertRequest(db, request)
-  let route: Route = request.route
+  await insertInquiry(db, inquiry)
+  let route: Route = inquiry.route
   await send({
     event: 'route',
-    data: { requestId, route, status: 'new', suggestedRole: request.suggestedRole },
+    data: { inquiryId, route, status: 'new', suggestedRole: inquiry.suggestedRole },
   })
 
   let answer = {
@@ -88,10 +88,10 @@ export async function answerQuestion(
     } catch (err) {
       console.error('answer failed', err)
       route = 'handed_off'
-      await markRequestHandedOff(db, requestId, 'The assistant could not answer')
+      await markInquiryHandedOff(db, inquiryId, 'The assistant could not answer')
       await send({
         event: 'route',
-        data: { requestId, route, status: 'new', suggestedRole: 'Director' },
+        data: { inquiryId, route, status: 'new', suggestedRole: 'Director' },
       })
     }
   }
@@ -112,7 +112,7 @@ export async function answerQuestion(
 async function routeOrHandOff(
   env: Env,
   input: RouteInput,
-): Promise<Omit<NewRequest, 'id' | 'parentId' | 'messageId' | 'isTest' | 'createdAt'>> {
+): Promise<Omit<NewInquiry, 'id' | 'parentId' | 'messageId' | 'isTest' | 'createdAt'>> {
   try {
     const { scores, router } = await routeQuestion(env, input)
     const decision = decide(scores, input.parent.childName)

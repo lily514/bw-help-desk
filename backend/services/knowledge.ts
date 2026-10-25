@@ -15,8 +15,8 @@ export const listEntries = knowledge.listKnowledge
 export async function getEntryDetail(db: D1Database, id: string): Promise<KnowledgeEntryDetail> {
   const entry = await knowledge.getKnowledge(db, id)
   if (!entry) throw new NotFoundError('Entry not found')
-  const sourceParentName = entry.sourceRequestId
-    ? await knowledge.getSourceParentName(db, entry.sourceRequestId)
+  const sourceParentName = entry.sourceInquiryId
+    ? await knowledge.getSourceParentName(db, entry.sourceInquiryId)
     : null
   return { ...entry, sourceParentName }
 }
@@ -24,7 +24,7 @@ export async function getEntryDetail(db: D1Database, id: string): Promise<Knowle
 export async function createEntry(
   db: D1Database,
   input: EntryInput,
-  source: { fromParentQuestion: boolean; sourceRequestId: string | null },
+  source: { fromParentQuestion: boolean; sourceInquiryId: string | null },
 ): Promise<KnowledgeEntry> {
   const entry: KnowledgeEntry = {
     id: await createEntryId(db, input.category, input.title),
@@ -56,7 +56,7 @@ export async function updateEntry(
 export async function saveReplyAsAnswer(
   db: D1Database,
   saveAs: SaveAs,
-  reply: { text: string; question: string; topic: Category; requestId: string; now: string },
+  reply: { text: string; question: string; topic: Category; inquiryId: string; now: string },
 ): Promise<KnowledgeEntry | null> {
   if ('entryId' in saveAs) {
     const entry = await knowledge.getKnowledge(db, saveAs.entryId)
@@ -79,7 +79,7 @@ export async function saveReplyAsAnswer(
     category: reply.topic,
     body: reply.text,
     fromParentQuestion: true,
-    sourceRequestId: reply.requestId,
+    sourceInquiryId: reply.inquiryId,
     updatedAt: reply.now,
   }
   await knowledge.insertKnowledge(db, entry)

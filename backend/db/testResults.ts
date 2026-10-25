@@ -63,7 +63,7 @@ export async function resetTestData(
   await db.batch([
     db.prepare('DELETE FROM test_results'),
     db.prepare(`DELETE FROM messages WHERE is_test = 1 OR ${ofParents}`),
-    db.prepare(`DELETE FROM requests WHERE is_test = 1 OR ${ofParents}`),
+    db.prepare(`DELETE FROM inquiries WHERE is_test = 1 OR ${ofParents}`),
     db.prepare(`DELETE FROM parents WHERE ${parents}`),
     ...knowledgeSql.map((sql) => db.prepare(sql)),
   ])

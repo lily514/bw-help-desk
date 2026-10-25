@@ -5,7 +5,7 @@ import { inbox } from './controllers/inbox'
 import { insights } from './controllers/insights'
 import { knowledge } from './controllers/knowledge'
 import { parents } from './controllers/parents'
-import { requests } from './controllers/requests'
+import { inquiries } from './controllers/inquiries'
 import { testMode } from './controllers/testMode'
 import { thread } from './controllers/thread'
 import { NotFoundError } from './services/errors'
@@ -18,7 +18,7 @@ app.route('/parents', parents)
 app.route('/knowledge', knowledge)
 app.route('/chat', chat)
 app.route('/thread', thread)
-app.route('/requests', requests)
+app.route('/inquiries', inquiries)
 app.route('/inbox', inbox)
 app.route('/insights', insights)
 app.route('/test', testMode)

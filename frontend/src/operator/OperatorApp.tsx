@@ -73,7 +73,7 @@ export function OperatorApp() {
           <Route element={<Shell />}>
             <Route index element={<Navigate to="inbox" replace />} />
             <Route path="inbox" element={<Inbox />} />
-            <Route path="inbox/:requestId" element={<Inbox />} />
+            <Route path="inbox/:inquiryId" element={<Inbox />} />
             <Route path="knowledge" element={<Knowledge />} />
             <Route path="knowledge/:entryId" element={<KnowledgeEditorPage />} />
             <Route path="insights" element={<Insights />} />

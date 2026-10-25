@@ -1,5 +1,5 @@
 import { useEffect, useId, useState, type FormEvent } from 'react'
-import type { InboxItem, RequestDetail, SaveAs, StaffRole } from '../../../shared/types'
+import type { InboxItem, InquiryDetail, SaveAs, StaffRole } from '../../../shared/types'
 import { api } from '../shared/api'
 import { firstName, formatTime } from '../shared/format'
 import {
@@ -18,17 +18,17 @@ import { RetryButton } from './RetryButton'
 
 const ROLES: StaffRole[] = ['Director', 'Office', 'Classroom teacher', 'Kitchen']
 
-/** Detail pane for one request (PLAN.md 4.4), top to bottom as in the design. */
-export function RequestPanel({ item }: { item: InboxItem }) {
-  const [detail, setDetail] = useState<RequestDetail | null>(null)
+/** Detail pane for one inquiry (PLAN.md 4.4), top to bottom as in the design. */
+export function InquiryPanel({ item }: { item: InboxItem }) {
+  const [detail, setDetail] = useState<InquiryDetail | null>(null)
   const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
 
-  // Refetch whenever the request changes (seen, forwarded, replied, from any device).
+  // Refetch whenever the inquiry changes (seen, forwarded, replied, from any device).
   useEffect(() => {
     let cancelled = false
     api
-      .requestDetail(item.id)
+      .inquiryDetail(item.id)
       .then((d) => !cancelled && setDetail(d))
       .catch(() => !cancelled && setFailed(true))
     return () => {
@@ -44,29 +44,29 @@ export function RequestPanel({ item }: { item: InboxItem }) {
   const parentFirst = firstName(item.parentName)
 
   return (
-    <article className="request" aria-label="Selected conversation">
-      <div className="request-head">
+    <article className="inquiry" aria-label="Selected conversation">
+      <div className="inquiry-head">
         <div>
           <h2>{item.parentName}</h2>
-          <span className="request-sub">
+          <span className="inquiry-sub">
             Parent of {item.childName} · {item.room} room · {when(item.createdAt)}
           </span>
         </div>
-        <div className="request-badges">
+        <div className="inquiry-badges">
           {item.isTest && <TestBadge />}
           <RouteBadge route={item.route} large />
         </div>
       </div>
 
-      <div className="request-section">
+      <div className="inquiry-section">
         <span className="section-label">Message</span>
-        <p className="request-message">{item.text}</p>
-        {detail?.earlier && <span className="request-earlier">{earlierLine(detail.earlier)}</span>}
+        <p className="inquiry-message">{item.text}</p>
+        {detail?.earlier && <span className="inquiry-earlier">{earlierLine(detail.earlier)}</span>}
       </div>
 
       {!detail && !failed && <p className="muted">Loading details…</p>}
       {failed && !detail && (
-        <div className="request-error">
+        <div className="inquiry-error">
           <p>Couldn't load the details.</p>
           <RetryButton onClick={retry} />
         </div>
@@ -76,7 +76,7 @@ export function RequestPanel({ item }: { item: InboxItem }) {
           <WhyBox detail={detail} />
 
           {detail.aiAnswer && (
-            <div className="request-section">
+            <div className="inquiry-section">
               <span className="section-label">What {parentFirst} already heard</span>
               <div className="heard">
                 <p>{detail.aiAnswer.text}</p>
@@ -95,7 +95,7 @@ export function RequestPanel({ item }: { item: InboxItem }) {
           )}
 
           {detail.replies.length > 0 && (
-            <div className="request-section">
+            <div className="inquiry-section">
               <span className="section-label">Your replies</span>
               {detail.replies.map((m) => (
                 <div key={m.id} className="sent-reply">
@@ -114,10 +114,10 @@ export function RequestPanel({ item }: { item: InboxItem }) {
   )
 }
 
-function WhyBox({ detail }: { detail: RequestDetail }) {
+function WhyBox({ detail }: { detail: InquiryDetail }) {
   const [open, setOpen] = useState(false)
   const panelId = useId()
-  const { reason, scores, router, topic } = detail.request
+  const { reason, scores, router, topic } = detail.inquiry
 
   return (
     <div className="why">
@@ -225,7 +225,7 @@ function ForwardRow({ item }: { item: InboxItem }) {
   )
 }
 
-function ReplyForm({ item, detail }: { item: InboxItem; detail: RequestDetail }) {
+function ReplyForm({ item, detail }: { item: InboxItem; detail: InquiryDetail }) {
   const { upsert } = useInbox()
   const [text, setText] = useState('')
   const [save, setSave] = useState(false)
@@ -248,7 +248,7 @@ function ReplyForm({ item, detail }: { item: InboxItem; detail: RequestDetail })
     setNote(null)
     try {
       const result = await api.reply(item.id, text.trim(), saveAs)
-      upsert(result.request)
+      upsert(result.inquiry)
       setText('')
       setSave(false)
       setNote({

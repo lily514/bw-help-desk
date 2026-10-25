@@ -19,7 +19,7 @@ import {
 type Call =
   | { kind: 'reset' }
   | { kind: 'ask'; parentId: string; text: string }
-  | { kind: 'reply'; requestId: string; text: string; saveAs?: SaveAs }
+  | { kind: 'reply'; inquiryId: string; text: string; saveAs?: SaveAs }
   | { kind: 'record'; scenarioNum: number; actual: Route; savedReply: boolean }
 
 /** Routes every scenario as expected; sleeps resolve on the next microtask. */
@@ -40,10 +40,10 @@ function harness(routeFor: (num: number) => Route = (num) => TEST_SCENARIOS[num 
         throw new Error('network down')
       }
       calls.push({ kind: 'ask', parentId, text })
-      return { requestId: `req-${num}`, route: routeFor(num) }
+      return { inquiryId: `req-${num}`, route: routeFor(num) }
     },
-    reply: async (requestId, text, saveAs) => {
-      calls.push({ kind: 'reply', requestId, text, saveAs })
+    reply: async (inquiryId, text, saveAs) => {
+      calls.push({ kind: 'reply', inquiryId, text, saveAs })
     },
     record: async ({ runId, scenarioNum, actual, savedReply }) => {
       calls.push({ kind: 'record', scenarioNum, actual, savedReply })
@@ -104,10 +104,10 @@ describe('TestRunner', () => {
     await runner.run()
     const replies = calls.filter((c) => c.kind === 'reply')
     const escalated = TEST_SCENARIOS.filter((s) => s.expected !== 'answered')
-    expect(replies.map((r) => r.requestId).sort()).toEqual(
+    expect(replies.map((r) => r.inquiryId).sort()).toEqual(
       escalated.map((s) => `req-${s.num}`).sort(),
     )
-    expect(replies.find((r) => r.requestId === 'req-3')).toMatchObject({
+    expect(replies.find((r) => r.inquiryId === 'req-3')).toMatchObject({
       text: SAVED_REPLY,
       saveAs: { entryId: SAVE_ENTRY_ID },
     })
@@ -117,7 +117,7 @@ describe('TestRunner', () => {
   it('sends #15 only after the #3 save finished, and reports it', async () => {
     const { runner, calls } = harness()
     await runner.run()
-    const saveAt = calls.findIndex((c) => c.kind === 'reply' && c.requestId === 'req-3')
+    const saveAt = calls.findIndex((c) => c.kind === 'reply' && c.inquiryId === 'req-3')
     const askAt = calls.findIndex((c) => c.kind === 'ask' && c.text === TEST_SCENARIOS[14].question)
     expect(saveAt).toBeGreaterThan(-1)
     expect(saveAt).toBeLessThan(askAt)
@@ -131,7 +131,7 @@ describe('TestRunner', () => {
       num === 3 ? 'answered' : TEST_SCENARIOS[num - 1].expected,
     )
     await runner.run()
-    expect(calls.some((c) => c.kind === 'reply' && c.requestId === 'req-3')).toBe(false)
+    expect(calls.some((c) => c.kind === 'reply' && c.inquiryId === 'req-3')).toBe(false)
     expect(calls.find((c) => c.kind === 'record' && c.scenarioNum === 15)).toMatchObject({
       savedReply: false,
     })

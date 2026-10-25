@@ -8,12 +8,12 @@ import type {
   KnowledgeEntryDetail,
   Parent,
   ReplyResult,
-  RequestDetail,
+  InquiryDetail,
   Room,
   Route,
   SaveAs,
   StaffRole,
-  ThreadRequest,
+  ThreadInquiry,
   ThreadResponse,
 } from '../../../shared/types'
 
@@ -64,17 +64,17 @@ export const api = {
 
   thread: (parentId: string, since?: string) =>
     request<ThreadResponse>(`/api/thread/${enc(parentId)}${since ? `?since=${enc(since)}` : ''}`),
-  askPerson: (requestId: string) =>
-    post<ThreadRequest>(`/api/requests/${enc(requestId)}/ask-person`),
+  askPerson: (inquiryId: string) =>
+    post<ThreadInquiry>(`/api/inquiries/${enc(inquiryId)}/ask-person`),
 
   inbox: () => request<InboxItem[]>('/api/inbox'),
   insights: () => request<Insights>('/api/insights'),
-  requestDetail: (id: string) => request<RequestDetail>(`/api/requests/${enc(id)}`),
-  markSeen: (id: string) => post<InboxItem>(`/api/requests/${enc(id)}/seen`),
+  inquiryDetail: (id: string) => request<InquiryDetail>(`/api/inquiries/${enc(id)}`),
+  markSeen: (id: string) => post<InboxItem>(`/api/inquiries/${enc(id)}/seen`),
   forward: (id: string, role: StaffRole) =>
-    post<InboxItem>(`/api/requests/${enc(id)}/forward`, { role }),
+    post<InboxItem>(`/api/inquiries/${enc(id)}/forward`, { role }),
   reply: (id: string, text: string, saveAs?: SaveAs) =>
-    post<ReplyResult>(`/api/requests/${enc(id)}/reply`, { text, saveAs }),
+    post<ReplyResult>(`/api/inquiries/${enc(id)}/reply`, { text, saveAs }),
 
   testResult: (input: { runId: string; scenarioNum: number; actual: Route; savedReply: boolean }) =>
     post<TestResult>('/api/test/result', input),

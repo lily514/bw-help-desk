@@ -36,7 +36,7 @@ export function knowledgeSeedSql(handbookMd: string): string[] {
         category: e.category,
         body: e.body,
         from_parent_question: 0,
-        source_request_id: null,
+        source_inquiry_id: null,
         updated_at: e.updatedAt,
       }),
     ),
@@ -48,7 +48,7 @@ export function buildSeedSql(handbookMd: string, now: Date = new Date()): string
   const statements = [
     'DELETE FROM test_results;',
     'DELETE FROM messages;',
-    'DELETE FROM requests;',
+    'DELETE FROM inquiries;',
     'DELETE FROM parents;',
     ...knowledgeSeedSql(handbookMd),
     insert('parents', {
@@ -91,7 +91,7 @@ function questionSql(q: SeedQuestion, n: number, now: Date): string[] {
 
   const route = ROUTE_BY_KIND[q.kind]
   const askedAt = easternTime(now, q.daysAgo, q.time)
-  const requestId = `seed-req-${id}`
+  const inquiryId = `seed-inq-${id}`
   const messageId = `seed-msg-${id}-q`
 
   const statements = [
@@ -103,7 +103,7 @@ function questionSql(q: SeedQuestion, n: number, now: Date): string[] {
       citations: null,
       staff_name: null,
       staff_role: null,
-      request_id: requestId,
+      inquiry_id: inquiryId,
       is_test: 0,
       created_at: askedAt,
     }),
@@ -115,7 +115,7 @@ function questionSql(q: SeedQuestion, n: number, now: Date): string[] {
       citations: q.answer ? JSON.stringify(q.citations ?? []) : null,
       staff_name: null,
       staff_role: null,
-      request_id: requestId,
+      inquiry_id: inquiryId,
       is_test: 0,
       created_at: addMinutes(askedAt, 0.1),
     }),
@@ -132,7 +132,7 @@ function questionSql(q: SeedQuestion, n: number, now: Date): string[] {
         citations: null,
         staff_name: DIRECTOR.name,
         staff_role: DIRECTOR.role,
-        request_id: requestId,
+        inquiry_id: inquiryId,
         is_test: 0,
         created_at: repliedAt,
       }),
@@ -140,8 +140,8 @@ function questionSql(q: SeedQuestion, n: number, now: Date): string[] {
   }
 
   statements.push(
-    insert('requests', {
-      id: requestId,
+    insert('inquiries', {
+      id: inquiryId,
       parent_id: q.parentId,
       message_id: messageId,
       route,

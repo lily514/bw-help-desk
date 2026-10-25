@@ -3,7 +3,7 @@ import { toInboxItem, type InboxRow } from './rows'
 
 const INBOX_SELECT = `
   SELECT r.*, m.text, p.name AS parent_name, p.child_name, p.room
-  FROM requests r
+  FROM inquiries r
   JOIN messages m ON m.id = r.message_id
   JOIN parents p ON p.id = r.parent_id`
 
@@ -23,7 +23,7 @@ export async function listInbox(db: D1Database): Promise<InboxItem[]> {
   return results.map(toInboxItem)
 }
 
-/** One request with its question and parent, raw, for the detail view. */
+/** One inquiry with its question and parent, raw, for the detail view. */
 export async function getInboxRow(db: D1Database, id: string): Promise<InboxRow | null> {
   return db.prepare(`${INBOX_SELECT} WHERE r.id = ?`).bind(id).first<InboxRow>()
 }

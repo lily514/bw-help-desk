@@ -6,12 +6,12 @@ import type {
   Message,
   MessageRole,
   Parent,
-  RequestStatus,
+  InquiryStatus,
   Room,
   Route,
   RouteScores,
   StaffRole,
-  ThreadRequest,
+  ThreadInquiry,
 } from '../../shared/types'
 
 // Row shapes as stored in D1 (snake_case, 0/1 booleans), and their mappers to the API types.
@@ -32,7 +32,7 @@ export interface KnowledgeRow {
   category: string
   body: string
   from_parent_question: number
-  source_request_id: string | null
+  source_inquiry_id: string | null
   updated_at: string
 }
 
@@ -44,12 +44,12 @@ export interface MessageRow {
   citations: string | null
   staff_name: string | null
   staff_role: string | null
-  request_id: string | null
+  inquiry_id: string | null
   is_test: number
   created_at: string
 }
 
-export interface RequestRow {
+export interface InquiryRow {
   id: string
   parent_id: string
   message_id: string
@@ -67,8 +67,8 @@ export interface RequestRow {
   updated_at: string
 }
 
-/** A request joined with its question and parent, as the inbox shows it. */
-export type InboxRow = RequestRow & {
+/** An inquiry joined with its question and parent, as the inbox shows it. */
+export type InboxRow = InquiryRow & {
   text: string
   parent_name: string
   child_name: string
@@ -107,7 +107,7 @@ export function toKnowledgeEntry(r: KnowledgeRow): KnowledgeEntry {
     category: r.category as Category,
     body: r.body,
     fromParentQuestion: r.from_parent_question === 1,
-    sourceRequestId: r.source_request_id,
+    sourceInquiryId: r.source_inquiry_id,
     updatedAt: r.updated_at,
   }
 }
@@ -121,18 +121,18 @@ export function toMessage(r: MessageRow): Message {
     citations: r.citations ? (JSON.parse(r.citations) as string[]) : [],
     staffName: r.staff_name,
     staffRole: r.staff_role,
-    requestId: r.request_id,
+    inquiryId: r.inquiry_id,
     isTest: r.is_test === 1,
     createdAt: r.created_at,
   }
 }
 
-export function toThreadRequest(r: RequestRow): ThreadRequest {
+export function toThreadInquiry(r: InquiryRow): ThreadInquiry {
   return {
     id: r.id,
     messageId: r.message_id,
     route: r.route as Route,
-    status: r.status as RequestStatus,
+    status: r.status as InquiryStatus,
     suggestedRole: r.suggested_role as StaffRole,
     forwardedTo: r.forwarded_to as StaffRole | null,
     createdAt: r.created_at,
@@ -149,7 +149,7 @@ export function toInboxItem(r: InboxRow): InboxItem {
     room: r.room as Room,
     text: r.text,
     route: r.route as Route,
-    status: r.status as RequestStatus,
+    status: r.status as InquiryStatus,
     suggestedRole: r.suggested_role as StaffRole,
     forwardedTo: r.forwarded_to as StaffRole | null,
     isTest: r.is_test === 1,
@@ -173,7 +173,7 @@ export function toTestResult(r: TestResultRow): TestResult {
   }
 }
 
-/** Stored scores, or null for a request whose routing failed (stored as `{}`). */
+/** Stored scores, or null for an inquiry whose routing failed (stored as `{}`). */
 export function parseScores(json: string): RouteScores | null {
   const parsed = JSON.parse(json) as Partial<RouteScores>
   return typeof parsed.is_urgent === 'number' ? (parsed as RouteScores) : null

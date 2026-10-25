@@ -1,6 +1,6 @@
 import type { Insights } from '../../shared/types'
 import { listKnowledgeTitles } from '../db/knowledge'
-import { listInsightRows } from '../db/requests'
+import { listInsightRows } from '../db/inquiries'
 import { INSIGHTS_DAYS, summarizeInsights } from '../domain/insights'
 
 /** The last 7 days, test conversations excluded. */

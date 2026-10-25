@@ -5,7 +5,7 @@ export async function insertMessage(db: D1Database, m: Message): Promise<void> {
   await db
     .prepare(
       `INSERT INTO messages
-         (id, parent_id, role, text, citations, staff_name, staff_role, request_id, is_test, created_at)
+         (id, parent_id, role, text, citations, staff_name, staff_role, inquiry_id, is_test, created_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
@@ -16,7 +16,7 @@ export async function insertMessage(db: D1Database, m: Message): Promise<void> {
       m.role === 'ai' ? JSON.stringify(m.citations) : null,
       m.staffName,
       m.staffRole,
-      m.requestId,
+      m.inquiryId,
       m.isTest ? 1 : 0,
       m.createdAt,
     )
@@ -38,11 +38,11 @@ export async function listMessages(
   return results.map(toMessage)
 }
 
-/** The question, the AI's answer and any staff replies for one request, oldest first. */
-export async function listRequestMessages(db: D1Database, requestId: string): Promise<Message[]> {
+/** The question, the AI's answer and any staff replies for one inquiry, oldest first. */
+export async function listInquiryMessages(db: D1Database, inquiryId: string): Promise<Message[]> {
   const { results } = await db
-    .prepare('SELECT * FROM messages WHERE request_id = ? ORDER BY created_at, rowid')
-    .bind(requestId)
+    .prepare('SELECT * FROM messages WHERE inquiry_id = ? ORDER BY created_at, rowid')
+    .bind(inquiryId)
     .all<MessageRow>()
   return results.map(toMessage)
 }

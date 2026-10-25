@@ -89,7 +89,7 @@ describe('seed history', () => {
       "INSERT INTO parents (id, name, child_name, room, is_demo, is_test, created_at) VALUES ('sam-rivera', 'Sam Rivera', 'Maya', 'Twos', 0, 0,",
     )
     expect(sql.match(/INSERT INTO knowledge_entries/g)).toHaveLength(29)
-    expect(sql.match(/INSERT INTO requests/g)).toHaveLength(SEED_QUESTIONS.length)
+    expect(sql.match(/INSERT INTO inquiries/g)).toHaveLength(SEED_QUESTIONS.length)
     expect(sql).toContain("'What''s for lunch on Thursday?'")
   })
 })

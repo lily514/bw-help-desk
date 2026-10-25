@@ -1,6 +1,6 @@
 import type { ThreadResponse } from '../../shared/types'
 import { listMessages } from '../db/messages'
-import { listThreadRequests } from '../db/requests'
+import { listThreadInquiries } from '../db/inquiries'
 import { getParent } from './parents'
 
 /**
@@ -9,7 +9,7 @@ import { getParent } from './parents'
  */
 const CURSOR_OVERLAP_MS = 5_000
 
-/** A parent's messages and request statuses; with `since`, only what changed after it. */
+/** A parent's messages and inquiry statuses; with `since`, only what changed after it. */
 export async function getThread(
   db: D1Database,
   parentId: string,
@@ -17,9 +17,9 @@ export async function getThread(
 ): Promise<ThreadResponse> {
   await getParent(db, parentId)
   const serverTime = new Date(Date.now() - CURSOR_OVERLAP_MS).toISOString()
-  const [messages, requests] = await Promise.all([
+  const [messages, inquiries] = await Promise.all([
     listMessages(db, parentId, since),
-    listThreadRequests(db, parentId, since),
+    listThreadInquiries(db, parentId, since),
   ])
-  return { messages, requests, serverTime }
+  return { messages, inquiries, serverTime }
 }

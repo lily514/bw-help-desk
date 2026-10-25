@@ -32,7 +32,7 @@ knowledge.post('/', async (c) => {
 
   const entry = await createEntry(c.env.DB, input, {
     fromParentQuestion: raw.fromParentQuestion === true,
-    sourceRequestId: typeof raw.sourceRequestId === 'string' ? raw.sourceRequestId : null,
+    sourceInquiryId: typeof raw.sourceInquiryId === 'string' ? raw.sourceInquiryId : null,
   })
   return c.json(entry, 201)
 })

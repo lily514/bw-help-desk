@@ -26,11 +26,11 @@ export async function getKnowledge(db: D1Database, id: string): Promise<Knowledg
 /** Name of the parent whose question an entry was saved from, for the editor's meta line. */
 export async function getSourceParentName(
   db: D1Database,
-  requestId: string,
+  inquiryId: string,
 ): Promise<string | null> {
   const row = await db
-    .prepare('SELECT p.name FROM requests r JOIN parents p ON p.id = r.parent_id WHERE r.id = ?')
-    .bind(requestId)
+    .prepare('SELECT p.name FROM inquiries r JOIN parents p ON p.id = r.parent_id WHERE r.id = ?')
+    .bind(inquiryId)
     .first<{ name: string }>()
   return row?.name ?? null
 }
@@ -39,7 +39,7 @@ export async function insertKnowledge(db: D1Database, e: KnowledgeEntry): Promis
   await db
     .prepare(
       `INSERT INTO knowledge_entries
-         (id, title, category, body, from_parent_question, source_request_id, updated_at)
+         (id, title, category, body, from_parent_question, source_inquiry_id, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
@@ -48,7 +48,7 @@ export async function insertKnowledge(db: D1Database, e: KnowledgeEntry): Promis
       e.category,
       e.body,
       e.fromParentQuestion ? 1 : 0,
-      e.sourceRequestId,
+      e.sourceInquiryId,
       e.updatedAt,
     )
     .run()

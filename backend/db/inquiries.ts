@@ -1,16 +1,16 @@
 import type {
   Category,
-  RequestStatus,
+  InquiryStatus,
   Route,
   RouteScores,
   RouterName,
   StaffRole,
-  ThreadRequest,
+  ThreadInquiry,
 } from '../../shared/types'
 import type { InsightRow } from '../domain/insights'
-import { toThreadRequest, type RequestRow } from './rows'
+import { toThreadInquiry, type InquiryRow } from './rows'
 
-export interface NewRequest {
+export interface NewInquiry {
   id: string
   parentId: string
   messageId: string
@@ -25,10 +25,10 @@ export interface NewRequest {
   createdAt: string
 }
 
-export async function insertRequest(db: D1Database, r: NewRequest): Promise<void> {
+export async function insertInquiry(db: D1Database, r: NewInquiry): Promise<void> {
   await db
     .prepare(
-      `INSERT INTO requests
+      `INSERT INTO inquiries
          (id, parent_id, message_id, route, reason, scores, router, suggested_role, topic,
           answerable, status, forwarded_to, is_test, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'new', NULL, ?, ?, ?)`,
@@ -51,21 +51,21 @@ export async function insertRequest(db: D1Database, r: NewRequest): Promise<void
     .run()
 }
 
-export async function getRequestRow(db: D1Database, id: string): Promise<RequestRow | null> {
-  return db.prepare('SELECT * FROM requests WHERE id = ?').bind(id).first<RequestRow>()
+export async function getInquiryRow(db: D1Database, id: string): Promise<InquiryRow | null> {
+  return db.prepare('SELECT * FROM inquiries WHERE id = ?').bind(id).first<InquiryRow>()
 }
 
-/** A parent's requests; with `since`, only those created or updated after it. */
-export async function listThreadRequests(
+/** A parent's inquiries; with `since`, only those created or updated after it. */
+export async function listThreadInquiries(
   db: D1Database,
   parentId: string,
   since?: string,
-): Promise<ThreadRequest[]> {
+): Promise<ThreadInquiry[]> {
   const { results } = await db
-    .prepare(`SELECT * FROM requests WHERE parent_id = ? AND updated_at > ? ORDER BY created_at`)
+    .prepare(`SELECT * FROM inquiries WHERE parent_id = ? AND updated_at > ? ORDER BY created_at`)
     .bind(parentId, since ?? '')
-    .all<RequestRow>()
-  return results.map(toThreadRequest)
+    .all<InquiryRow>()
+  return results.map(toThreadInquiry)
 }
 
 /** The parent's previous question before `before`, for the detail's "Earlier" line. */
@@ -76,7 +76,7 @@ export async function getEarlierQuestion(
 ): Promise<{ text: string; route: Route; createdAt: string } | null> {
   const row = await db
     .prepare(
-      `SELECT m.text, r.route, r.created_at FROM requests r
+      `SELECT m.text, r.route, r.created_at FROM inquiries r
        JOIN messages m ON m.id = r.message_id
        WHERE r.parent_id = ? AND r.created_at < ?
        ORDER BY r.created_at DESC LIMIT 1`,
@@ -86,12 +86,12 @@ export async function getEarlierQuestion(
   return row ? { text: row.text, route: row.route as Route, createdAt: row.created_at } : null
 }
 
-/** Non-test requests since `since`, with their questions, for Insights. */
+/** Non-test inquiries since `since`, with their questions, for Insights. */
 export async function listInsightRows(db: D1Database, since: string): Promise<InsightRow[]> {
   const { results } = await db
     .prepare(
       `SELECT r.route, r.topic, r.answerable, r.created_at, m.text
-       FROM requests r JOIN messages m ON m.id = r.message_id
+       FROM inquiries r JOIN messages m ON m.id = r.message_id
        WHERE r.is_test = 0 AND r.created_at >= ?`,
     )
     .bind(since)
@@ -111,25 +111,25 @@ export async function listInsightRows(db: D1Database, since: string): Promise<In
   }))
 }
 
-/** Used when answering fails after routing: the request becomes a hand-off. */
-export async function markRequestHandedOff(
+/** Used when answering fails after routing: the inquiry becomes a hand-off. */
+export async function markInquiryHandedOff(
   db: D1Database,
   id: string,
   reason: string,
 ): Promise<void> {
   await db
     .prepare(
-      `UPDATE requests SET route = 'handed_off', router = 'error', reason = ?, suggested_role = 'Director', updated_at = ? WHERE id = ?`,
+      `UPDATE inquiries SET route = 'handed_off', router = 'error', reason = ?, suggested_role = 'Director', updated_at = ? WHERE id = ?`,
     )
     .bind(reason, new Date().toISOString(), id)
     .run()
 }
 
-/** "Ask a person" on an AI answer: the answered request becomes a hand-off to Dana. */
+/** "Ask a person" on an AI answer: the answered inquiry becomes a hand-off to Dana. */
 export async function escalateToPerson(db: D1Database, id: string): Promise<void> {
   await db
     .prepare(
-      `UPDATE requests SET route = 'handed_off', reason = 'Parent asked for a person',
+      `UPDATE inquiries SET route = 'handed_off', reason = 'Parent asked for a person',
          suggested_role = 'Director', status = 'new', updated_at = ?
        WHERE id = ? AND route = 'answered'`,
     )
@@ -137,15 +137,15 @@ export async function escalateToPerson(db: D1Database, id: string): Promise<void
     .run()
 }
 
-export async function setRequestStatus(
+export async function setInquiryStatus(
   db: D1Database,
   id: string,
-  status: RequestStatus,
+  status: InquiryStatus,
   forwardedTo?: StaffRole,
 ): Promise<void> {
   await db
     .prepare(
-      `UPDATE requests SET status = ?, forwarded_to = COALESCE(?, forwarded_to), updated_at = ?
+      `UPDATE inquiries SET status = ?, forwarded_to = COALESCE(?, forwarded_to), updated_at = ?
        WHERE id = ?`,
     )
     .bind(status, forwardedTo ?? null, new Date().toISOString(), id)
@@ -155,7 +155,7 @@ export async function setRequestStatus(
 /** Opening an item marks it Seen, but never moves it backwards from forwarded or replied. */
 export async function markSeen(db: D1Database, id: string): Promise<void> {
   await db
-    .prepare(`UPDATE requests SET status = 'seen', updated_at = ? WHERE id = ? AND status = 'new'`)
+    .prepare(`UPDATE inquiries SET status = 'seen', updated_at = ? WHERE id = ? AND status = 'new'`)
     .bind(new Date().toISOString(), id)
     .run()
 }

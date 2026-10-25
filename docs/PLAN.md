@@ -2,7 +2,7 @@
 
 The single source of truth for building the prototype with Claude Code. It merges the design handoff (what to build and how it looks) with the build plan (architecture and the order of work).
 
-- **Visual reference:** the Claude Design canvas "AI Front Desk Design" (https://claude.ai/artifact/4iAvw7eo8xNEcSajcmD5eT). If `design-reference/` is in the repo, it holds each screen's HTML with exact styles. Where they disagree with this file, this file wins.
+- **Visual reference:** the Claude Design canvas "AI Front Desk Design" (https://claude.ai/artifact/4iAvw7eo8xNEcSajcmD5eT). `reference/AI Front Desk Design.html` holds each screen's HTML with exact styles. Where they disagree with this file, this file wins.
 - **Knowledge base:** `data/handbook.md` is the seed and the source of truth for every policy fact. UI copy must not hard-code policy facts (hours, prices), with the exceptions listed in 4.6.
 - **Budget:** about 3 hours. Prefer the simplest thing that demos well. Anything not listed here is out of scope.
 
@@ -64,8 +64,8 @@ laptop            + static React app     └─ D1 (SQLite)     → parents, mes
 ├─ CLAUDE.md               "Follow PLAN.md, one phase per branch" + conventions
 ├─ README.md               setup, deploy, demo script
 ├─ package.json            one package; vite.config.ts, wrangler.toml, tsconfig.*.json at the root
-├─ data/handbook.md        knowledge base seed
-├─ design-reference/       exported design HTML (optional)
+├─ data/handbook.md        knowledge base seed (read by db:seed and test-mode Reset)
+├─ reference/              AI Front Desk Design.html (exported design, for reference only)
 ├─ shared/types.ts         API types imported by both frontend and backend
 ├─ backend/                the Cloudflare Worker
 │  ├─ index.ts             Hono app, mounts routes under /api

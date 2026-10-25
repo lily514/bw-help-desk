@@ -1,6 +1,7 @@
 dist
 .wrangler
-design-reference
+.claude
+reference
 data
 docs
 package-lock.json

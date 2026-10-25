@@ -73,3 +73,5 @@
 - insights come from jev router choices about categories etc when messages are received
 - started looking up how the deploy to cloudflare will work
 -test script is hard coded, no ui to add test cases
+- might consider checking css for duped classes
+- the lib backend structure is a little flat for me, I prefer more nesting to put similar things nearby eachother

@@ -5,6 +5,7 @@ import { createBrowserRouter, Navigate, Route, RouterProvider, Routes } from 're
 import './shared/tokens.css'
 import './shared/base.css'
 import { Landing } from './Landing'
+import { ErrorBoundary } from './shared/ErrorBoundary'
 import { OperatorApp } from './operator/OperatorApp'
 import { ParentApp } from './parent/ParentApp'
 
@@ -24,6 +25,8 @@ const router = createBrowserRouter([{ path: '*', element: <App /> }])
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <ErrorBoundary>
+      <RouterProvider router={router} />
+    </ErrorBoundary>
   </StrictMode>,
 )

@@ -14,6 +14,7 @@ import {
 import { RouteBadge, TestBadge } from './Badges'
 import { earlierLine, ROUTER_LABELS, SCORE_LABELS, when } from './model'
 import { useInbox } from './OperatorApp'
+import { RetryButton } from './RetryButton'
 
 const ROLES: StaffRole[] = ['Director', 'Office', 'Classroom teacher', 'Kitchen']
 
@@ -21,6 +22,7 @@ const ROLES: StaffRole[] = ['Director', 'Office', 'Classroom teacher', 'Kitchen'
 export function RequestPanel({ item }: { item: InboxItem }) {
   const [detail, setDetail] = useState<RequestDetail | null>(null)
   const [failed, setFailed] = useState(false)
+  const [attempt, setAttempt] = useState(0)
 
   // Refetch whenever the request changes (seen, forwarded, replied, from any device).
   useEffect(() => {
@@ -32,7 +34,12 @@ export function RequestPanel({ item }: { item: InboxItem }) {
     return () => {
       cancelled = true
     }
-  }, [item.id, item.updatedAt])
+  }, [item.id, item.updatedAt, attempt])
+
+  const retry = () => {
+    setFailed(false)
+    setAttempt((n) => n + 1)
+  }
 
   const parentFirst = firstName(item.parentName)
 
@@ -57,8 +64,12 @@ export function RequestPanel({ item }: { item: InboxItem }) {
         {detail?.earlier && <span className="request-earlier">{earlierLine(detail.earlier)}</span>}
       </div>
 
+      {!detail && !failed && <p className="muted">Loading details…</p>}
       {failed && !detail && (
-        <p className="request-error">Couldn't load the details. Try reopening this conversation.</p>
+        <div className="request-error">
+          <p>Couldn't load the details.</p>
+          <RetryButton onClick={retry} />
+        </div>
       )}
       {detail && (
         <>
@@ -166,7 +177,7 @@ function ForwardRow({ item }: { item: InboxItem }) {
   const { upsert } = useInbox()
   const [role, setRole] = useState<StaffRole>(item.forwardedTo ?? item.suggestedRole)
   const [busy, setBusy] = useState(false)
-  const [note, setNote] = useState<string | null>(null)
+  const [note, setNote] = useState<{ ok: boolean; text: string } | null>(null)
   const selectId = useId()
 
   const forward = async () => {
@@ -174,9 +185,12 @@ function ForwardRow({ item }: { item: InboxItem }) {
     setNote(null)
     try {
       upsert(await api.forward(item.id, role))
-      setNote(`Forwarded to ${role}. ${firstName(item.parentName)}'s status card is updated.`)
+      setNote({
+        ok: true,
+        text: `Forwarded to ${role}. ${firstName(item.parentName)}'s status card is updated.`,
+      })
     } catch {
-      setNote("Couldn't forward just now. Please try again.")
+      setNote({ ok: false, text: "Couldn't forward just now. Please try again." })
     } finally {
       setBusy(false)
     }
@@ -203,8 +217,8 @@ function ForwardRow({ item }: { item: InboxItem }) {
         </button>
       </div>
       {note && (
-        <p className="action-note" role="status">
-          {note}
+        <p className={`action-note${note.ok ? '' : ' is-error'}`} role="status">
+          {note.text}
         </p>
       )}
     </div>

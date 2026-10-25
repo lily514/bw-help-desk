@@ -135,3 +135,26 @@
 .md td:last-child {
   white-space: nowrap;
 }
+
+/* Error boundary page. */
+.crash {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 100dvh;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.crash h1 {
+  margin: 8px 0 0;
+  font-size: 22px;
+}
+
+.crash p {
+  max-width: 360px;
+  margin: 0 0 8px;
+  color: var(--text-2);
+}

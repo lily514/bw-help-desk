@@ -72,10 +72,10 @@ export function TestResults() {
                       {row.note && <span className="test-note">{row.note}</span>}
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Expected">
                     <RouteBadge route={s.expected} />
                   </td>
-                  <td>
+                  <td data-label="Actual">
                     {result ? (
                       <RouteBadge route={result.actual} />
                     ) : (

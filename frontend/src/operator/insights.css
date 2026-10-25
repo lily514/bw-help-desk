@@ -187,9 +187,11 @@
 /* Header: title with the window note beside it (rendered by Shell). */
 .header-title {
   display: flex;
+  flex: 1;
   flex-wrap: wrap;
   align-items: baseline;
   column-gap: 12px;
+  min-width: 0;
 }
 
 .header-title .muted {

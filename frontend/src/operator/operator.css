@@ -175,6 +175,10 @@
   margin: 0;
 }
 
+.empty-card .btn {
+  margin-top: 16px;
+}
+
 .muted {
   color: var(--muted);
 }
@@ -253,6 +257,10 @@
 .inbox-list-meta {
   font-size: 13px;
   color: var(--muted);
+}
+
+.inbox-list-meta.is-offline {
+  color: var(--urgent);
 }
 
 .inbox-empty {
@@ -491,8 +499,15 @@
 }
 
 .request-error {
-  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
   color: var(--unsafe);
+}
+
+.request-error p {
+  margin: 0;
 }
 
 .why {
@@ -1411,6 +1426,62 @@
 
 /* Bottom tab bar instead of the sidebar below ~768px. */
 @media (max-width: 768px) {
+  /* Test results: each row becomes a small card (number, question, badges, result). */
+  .test-table {
+    min-width: 0;
+  }
+
+  .test-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .test-table .test-row {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px 12px;
+    padding: 14px 16px;
+  }
+
+  .test-table tbody .test-row:first-child {
+    border-top: none;
+  }
+
+  .test-table td,
+  .test-table td:first-child,
+  .test-table td:last-child {
+    width: auto;
+    padding: 0;
+  }
+
+  .test-table td:nth-child(2),
+  .test-table td:last-child {
+    grid-column: 2 / -1;
+  }
+
+  .test-table td[data-label] {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .test-table td[data-label]::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .test-table td:nth-child(3) {
+    grid-column: 2;
+  }
+
   .operator {
     grid-template-columns: minmax(0, 1fr);
   }

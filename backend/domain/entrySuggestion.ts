@@ -27,7 +27,7 @@ interface Candidate {
  * Default entry for "Add to existing entry" (PLAN.md 4.4): same topic, most
  * word overlap with the question. Falls back to all entries if none share the topic.
  */
-export function bestMatchEntry(
+export function suggestEntry(
   question: string,
   topic: Category,
   entries: Candidate[],

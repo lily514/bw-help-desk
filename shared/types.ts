@@ -144,9 +144,10 @@ export interface RequestDetail {
   aiAnswer: { text: string; citations: string[] } | null
   /** Staff replies already sent on this request. */
   replies: Message[]
-  /** Entries for "Save as answer", with the best match preselected. */
+  /** Entries for "Save as answer". */
   knowledge: { id: string; title: string; category: Category }[]
-  bestMatchId: string | null
+  /** The entry "Add to existing entry" starts on (backend/domain/entrySuggestion.ts). */
+  suggestedEntryId: string | null
 }
 
 export type SaveAs = { entryId: string } | { create: true }

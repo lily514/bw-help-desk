@@ -15,7 +15,7 @@ import { listKnowledge } from '../db/knowledge'
 import { insertMessage, listRequestMessages } from '../db/messages'
 import * as requests from '../db/requests'
 import { parseScores, toInboxItem, toThreadRequest } from '../db/rows'
-import { bestMatchEntry } from '../domain/match'
+import { suggestEntry } from '../domain/entrySuggestion'
 import { NotFoundError } from './errors'
 import { saveReplyAsAnswer } from './knowledge'
 
@@ -60,7 +60,7 @@ export async function getRequestDetail(db: D1Database, id: string): Promise<Requ
     aiAnswer: answer ? { text: answer.text, citations: answer.citations } : null,
     replies: thread.filter((m) => m.role === 'staff'),
     knowledge: kb.map(({ id, title, category }) => ({ id, title, category })),
-    bestMatchId: bestMatchEntry(row.text, row.topic as Category, kb),
+    suggestedEntryId: suggestEntry(row.text, row.topic as Category, kb),
   }
 }
 

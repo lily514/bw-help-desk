@@ -230,7 +230,7 @@ function ReplyForm({ item, detail }: { item: InboxItem; detail: RequestDetail })
   const [text, setText] = useState('')
   const [save, setSave] = useState(false)
   const [target, setTarget] = useState<'existing' | 'create'>('existing')
-  const [entryId, setEntryId] = useState(detail.bestMatchId ?? detail.knowledge[0]?.id ?? '')
+  const [entryId, setEntryId] = useState(detail.suggestedEntryId ?? detail.knowledge[0]?.id ?? '')
   const [busy, setBusy] = useState(false)
   const [note, setNote] = useState<{ ok: boolean; text: string } | null>(null)
   const ids = { reply: useId(), entry: useId() }

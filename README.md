@@ -19,7 +19,7 @@ The demo shows three things:
 Parent phone ─┐                          ┌─ Jev (via OpenRouter) → routing scores
               ├─ Cloudflare Worker ──────┤
 Operator ─────┘   Hono API under /api    ├─ OpenRouter chat      → streamed answer + citations
-laptop            + static React app     └─ D1 (SQLite)          → parents, messages, requests, KB
+laptop            + static React app     └─ D1 (SQLite)          → parents, messages, inquiries, KB
 ```
 
 - **One Worker, one URL.** The Worker serves the built React app as static assets and the API under `/api/*`.

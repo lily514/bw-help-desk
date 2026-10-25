@@ -34,7 +34,7 @@ The demo must make three things obvious:
 Parent phone ─┐                          ┌─ Jev (TypeSafe)  → routing scores
               ├─ Cloudflare Worker ──────┤
 Operator ─────┘   Hono API under /api    ├─ OpenRouter      → streamed answer + citations
-laptop            + static React app     └─ D1 (SQLite)     → parents, messages, requests, KB
+laptop            + static React app     └─ D1 (SQLite)     → parents, messages, inquiries, KB
 ```
 
 - **One Cloudflare Worker** serves the built React app as static assets and the API under `/api/*`. One deploy, one URL. Landing ("choose a view") at `/`, parent at `/parent`, operator at `/operator`.
@@ -71,7 +71,7 @@ laptop            + static React app     └─ D1 (SQLite)     → parents, mes
 │  ├─ index.ts             Hono app, mounts routes under /api
 │  ├─ env.ts               bindings and vars
 │  ├─ README.md            the layers and where to find things
-│  ├─ routes/              controllers: chat.ts, thread.ts, parents.ts, kb.ts, requests.ts, insights.ts, test.ts
+│  ├─ controllers/         HTTP handlers: chat.ts, thread.ts, parents.ts, knowledge.ts, inquiries.ts, insights.ts, testMode.ts
 │  ├─ services/            business logic: chat pipeline, replies, knowledge, insights, test mode
 │  ├─ ai/                  openrouter.ts (client), router.ts (Jev + LLM fallback), answer.ts (streamed answer)
 │  ├─ db/                  D1 repositories, one file per table; rows.ts maps rows to API types
@@ -111,12 +111,12 @@ messages (
   text TEXT NOT NULL,
   citations TEXT,                -- JSON array of knowledge entry ids (ai only)
   staff_name TEXT, staff_role TEXT,
-  request_id TEXT,               -- links parent message ↔ its request
+  inquiry_id TEXT,               -- links parent message ↔ its inquiry
   is_test INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL
 )
 
-requests (                       -- one per parent message, including answered ones
+inquiries (                      -- one per parent message, including answered ones
   id TEXT PRIMARY KEY,
   parent_id TEXT NOT NULL,
   message_id TEXT NOT NULL,
@@ -139,7 +139,7 @@ knowledge_entries (
   category TEXT NOT NULL,        -- Hours | Fees | Health | Meals | Pickup | Program | Policies
   body TEXT NOT NULL,            -- plain text / light markdown
   from_parent_question INTEGER NOT NULL DEFAULT 0,
-  source_request_id TEXT,
+  source_inquiry_id TEXT,
   updated_at TEXT NOT NULL
 )
 
@@ -151,7 +151,7 @@ test_results (
 )
 ```
 
-- The inbox shows requests with `route != 'answered'`, plus any "Ask a person" request.
+- The inbox shows inquiries with `route != 'answered'`, plus any "Ask a person" inquiry.
 - The parent's tracker shows **Delivered → Seen → Replied**; status `new` displays as Delivered.
 - **Category mapping** for handbook ids (in `seed.ts`): `center`, `policy`, `ratios` → Policies · `hours` → Hours · `fees` → Fees · `health` → Health · `meals` → Meals · `pickup` → Pickup · `enroll`, `daily`, `program` → Program.
 
@@ -169,16 +169,16 @@ GET  /api/parents/:id                 parent profile
 POST /api/parents                     { name, childName, room } → demo parent (is_demo=1)
 
 POST /api/chat                        { parentId, text, isTest? } → SSE stream (see 3.1)
-GET  /api/thread/:parentId?since=     messages + request statuses (polled)
-POST /api/requests/:id/ask-person     "Ask a person" on an AI answer
+GET  /api/thread/:parentId?since=     messages + inquiry statuses (polled)
+POST /api/inquiries/:id/ask-person    "Ask a person" on an AI answer
 
-GET  /api/kb    GET /api/kb/:id    POST /api/kb    PUT /api/kb/:id
+GET  /api/knowledge    GET /api/knowledge/:id    POST /api/knowledge    PUT /api/knowledge/:id
 
-GET  /api/inbox                       open requests, urgent first, then newest
-GET  /api/requests/:id                detail: message, earlier-context line, AI answer, scores
-POST /api/requests/:id/seen
-POST /api/requests/:id/forward        { role }
-POST /api/requests/:id/reply          { text, saveAs?: { entryId } | { create: true } }
+GET  /api/inbox                       open inquiries, urgent first, then newest
+GET  /api/inquiries/:id               detail: message, earlier-context line, AI answer, scores
+POST /api/inquiries/:id/seen
+POST /api/inquiries/:id/forward       { role }
+POST /api/inquiries/:id/reply         { text, saveAs?: { entryId } | { create: true } }
 
 GET  /api/insights                    last 7 days, excludes is_test
 
@@ -201,8 +201,8 @@ One secret, `OPENROUTER_API_KEY`, used for answers, Jev and the fallback router:
 
 1. Save the parent message.
 2. **Route** with `router.ts` → scores, topic, reason.
-3. **Decide** with `decide.ts` → route and suggested role. Save the request.
-4. Send SSE event `route` with `{ requestId, route, status }` so the UI can show the banner or status card right away.
+3. **Decide** with `decide.ts` → route and suggested role. Save the inquiry.
+4. Send SSE event `route` with `{ inquiryId, route, status }` so the UI can show the banner or status card right away.
 5. For `answered` and `looped_in`, **stream the answer** with `answer.ts`, sending `delta` events. Then save the AI message and send `done` with `{ message, citations }`.
 6. For `handed_off`, send the fixed acknowledgement as the AI message: "This is one for Dana. I've sent it to her." For `urgent`, send a short calm acknowledgement such as "I've alerted the staff right now. Please call the center." No KB answer in either case.
 7. On any error or 10-second timeout: route becomes `handed_off`, send the same acknowledgement, set `router = 'error'`. Never a raw error.
@@ -228,7 +228,7 @@ Original note: Before #3 is saved, "Can my mom pick Maya up?" needs Dana. After 
 
 `reason` is a short plain-language string built from the strongest signal, e.g. "About Maya's health today," "Asks staff to do something," "Possible custody issue," "Not covered by your policies."
 
-**Fallback:** if `ROUTER=llm` or Jev errors, ask `CHAT_COMPLETION_MODEL` for the same fields as JSON (`response_format: json_object`). Store which one ran in `requests.router`. Keep all Jev-specific code inside `router.ts`.
+**Fallback:** if `ROUTER=llm` or Jev errors, ask `CHAT_COMPLETION_MODEL` for the same fields as JSON (`response_format: json_object`). Store which one ran in `inquiries.router`. Keep all Jev-specific code inside `router.ts`.
 
 > Jev is called through OpenRouter, not `@typesafe-ai/sdk` (which needs a separate TypeSafe key). Jev models are "decisions" models: chat/completions rejects them. The decisions endpoint takes `{ model, state, questions }`, where each question is `{ type: 'noul' | 'choice', instructions, criteria }`, and returns `answers.<key>.noul` (0–1) or `.choice`. It's an alpha endpoint, hence the fallback.
 
@@ -300,7 +300,7 @@ Maple Grove's own look: warm, calm, quietly trustworthy. One accent color, gener
 | **Handed off** | Sensitive or not covered (custody, complaints, behavior, billing disputes, anything unknown) | No AI answer. Ack "This is one for Dana. I've sent it to her." Status card with reply time and the center phone | Yes |
 | **Urgent** | Safety, happening now (injury, allergic reaction, can't make pickup) | Full-width banner with tap-to-call, short ack, status card "Staff alerted at {time}" | Yes, pinned to top |
 
-- "Ask a person" under any AI answer creates a `handed_off` request for that question and appends a status card.
+- "Ask a person" under any AI answer turns that question's inquiry into `handed_off` and appends a status card.
 - Parents never see scores. The operator sees them only behind a "Details" toggle.
 - Operator replies are written by Dana, never drafted by the AI.
 
@@ -410,7 +410,7 @@ Each phase lists its branch, rough timebox, scope and done check. Stay in scope;
 - `backend/scripts/seed.ts`: parse `## [id] Title (updated YYYY-MM-DD)` sections into `knowledge_entries` with the category mapping; insert Sam and the seed history (2.2).
 - Parents and KB endpoints.
 - Test: the parser yields 29 entries with correct ids, categories and dates.
-- **Done when:** `GET /api/kb` on the live URL returns all 29 entries.
+- **Done when:** `GET /api/knowledge` on the live URL returns all 29 entries.
 
 ### Phase 2 — `feature/answer-engine` (25 min)
 - `answer.ts`: prompt per 3.4, streaming, `[[cite: …]]` parsing with validation, cache-friendly prompt order.
@@ -419,7 +419,7 @@ Each phase lists its branch, rough timebox, scope and done check. Stay in scope;
 - **Done when:** "Are you closed the Friday after Thanksgiving?" streams a yes citing `hours:holidays`, and "How much is tuition for the Twos room?" gives $270/week citing `fees:tuition`.
 
 ### Phase 3 — `feature/router` (30 min)
-- `router.ts` (Jev + LLM fallback), `decide.ts`, reasons, role mapping; wire into chat with requests, SSE `route` event, failure fallback, rate limit.
+- `router.ts` (Jev + LLM fallback), `decide.ts`, reasons, role mapping; wire into chat with inquiries, SSE `route` event, failure fallback, rate limit.
 - Tests for `decide()`: urgent beats everything; sensitive → handed off; low answerability → handed off; staff action or child health → looped in; plain factual → answered.
 - **Done when:** scenarios #1–#14 route as expected (or within one over-escalation) with `ROUTER=jev` and `ROUTER=llm`. Tag `v0.1`.
 

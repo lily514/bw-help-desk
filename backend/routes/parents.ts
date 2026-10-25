@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { ROOMS, type Parent, type Room } from '../../shared/types'
 import type { Env } from '../env'
-import { getParent, insertParent } from '../lib/db'
+import { getParent, insertParent } from '../db/parents'
 import { slugify } from '../domain/slug'
 
 export const parents = new Hono<{ Bindings: Env }>()

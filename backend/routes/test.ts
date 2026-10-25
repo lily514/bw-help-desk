@@ -9,7 +9,8 @@ import {
 } from '../../shared/testScenarios'
 import type { Route } from '../../shared/types'
 import type { Env } from '../env'
-import { listTestResults, resetTestData, saveTestResult } from '../lib/testMode'
+import { listTestResults, resetTestData, saveTestResult } from '../db/testResults'
+import { knowledgeSeedSql } from '../seed/seed'
 
 export const test = new Hono<{ Bindings: Env }>()
 
@@ -69,6 +70,9 @@ test.get('/results', async (c) => {
  */
 test.post('/reset', async (c) => {
   const body: { demoParents?: unknown } = await c.req.json().catch(() => ({}))
-  await resetTestData(c.env.DB, handbook, { demoParents: body.demoParents !== false })
+  await resetTestData(c.env.DB, {
+    demoParents: body.demoParents !== false,
+    knowledgeSql: knowledgeSeedSql(handbook),
+  })
   return c.json({ ok: true })
 })

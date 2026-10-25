@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import type { Env } from '../env'
-import { listInbox } from '../lib/inbox'
+import { listInbox } from '../db/inbox'
 
 export const inbox = new Hono<{ Bindings: Env }>()
 

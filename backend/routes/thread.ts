@@ -1,7 +1,9 @@
 import { Hono } from 'hono'
 import type { ThreadResponse } from '../../shared/types'
 import type { Env } from '../env'
-import { getParent, listMessages, listThreadRequests } from '../lib/db'
+import { listMessages } from '../db/messages'
+import { getParent } from '../db/parents'
+import { listThreadRequests } from '../db/requests'
 
 export const thread = new Hono<{ Bindings: Env }>()
 

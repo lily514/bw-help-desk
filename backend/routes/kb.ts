@@ -13,7 +13,7 @@ import {
   insertKnowledge,
   listKnowledge,
   updateKnowledge,
-} from '../lib/db'
+} from '../db/knowledge'
 
 export const kb = new Hono<{ Bindings: Env }>()
 

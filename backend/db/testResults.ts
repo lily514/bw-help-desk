@@ -1,34 +1,5 @@
-import type { Route } from '../../shared/types'
 import type { TestResult } from '../../shared/testScenarios'
-import { knowledgeSeedSql } from '../seed/seed'
-
-interface TestResultRow {
-  id: string
-  run_id: string
-  scenario_num: number
-  question: string
-  expected: string
-  actual: string
-  passed: number
-  unsafe_miss: number
-  learned: number
-  created_at: string
-}
-
-function toTestResult(r: TestResultRow): TestResult {
-  return {
-    id: r.id,
-    runId: r.run_id,
-    scenarioNum: r.scenario_num,
-    question: r.question,
-    expected: r.expected as Route,
-    actual: r.actual as Route,
-    passed: r.passed === 1,
-    unsafeMiss: r.unsafe_miss === 1,
-    learned: r.learned === 1,
-    createdAt: r.created_at,
-  }
-}
+import { toTestResult, type TestResultRow } from './rows'
 
 /** Replaces any earlier result for the same scenario in the run (a retried send). */
 export async function saveTestResult(db: D1Database, r: TestResult): Promise<void> {
@@ -79,14 +50,13 @@ export async function listTestResults(
 }
 
 /**
- * Deletes test conversations and results and restores the handbook knowledge base,
- * in one batch. A full reset (the Reset button) also deletes evaluator-created
- * demo parents and their threads; starting a new run keeps them.
+ * Deletes test conversations and results, then runs `knowledgeSql` (the handbook
+ * seed), all in one batch. With `demoParents`, evaluator-created demo parents and
+ * their threads go too.
  */
 export async function resetTestData(
   db: D1Database,
-  handbookMd: string,
-  { demoParents }: { demoParents: boolean },
+  { demoParents, knowledgeSql }: { demoParents: boolean; knowledgeSql: string[] },
 ): Promise<void> {
   const parents = demoParents ? 'is_test = 1 OR is_demo = 1' : 'is_test = 1'
   const ofParents = `parent_id IN (SELECT id FROM parents WHERE ${parents})`
@@ -95,6 +65,6 @@ export async function resetTestData(
     db.prepare(`DELETE FROM messages WHERE is_test = 1 OR ${ofParents}`),
     db.prepare(`DELETE FROM requests WHERE is_test = 1 OR ${ofParents}`),
     db.prepare(`DELETE FROM parents WHERE ${parents}`),
-    ...knowledgeSeedSql(handbookMd).map((sql) => db.prepare(sql)),
+    ...knowledgeSql.map((sql) => db.prepare(sql)),
   ])
 }

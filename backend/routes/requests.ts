@@ -2,17 +2,12 @@ import { Hono } from 'hono'
 import { DIRECTOR } from '../../shared/copy'
 import type { KnowledgeEntry, Message, ReplyResult, SaveAs, StaffRole } from '../../shared/types'
 import type { Env } from '../env'
-import {
-  createEntryId,
-  escalateToPerson,
-  getKnowledge,
-  getRequestRow,
-  insertKnowledge,
-  insertMessage,
-  toThreadRequest,
-  updateKnowledge,
-} from '../lib/db'
-import { getInboxItem, getRequestDetail, markSeen, setRequestStatus } from '../lib/inbox'
+import { getInboxItem } from '../db/inbox'
+import { createEntryId, getKnowledge, insertKnowledge, updateKnowledge } from '../db/knowledge'
+import { insertMessage } from '../db/messages'
+import { escalateToPerson, getRequestRow, markSeen, setRequestStatus } from '../db/requests'
+import { toThreadRequest } from '../db/rows'
+import { getRequestDetail } from '../lib/inbox'
 
 export const requests = new Hono<{ Bindings: Env }>()
 

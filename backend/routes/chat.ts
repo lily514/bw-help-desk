@@ -4,15 +4,10 @@ import type { ChatEvent, Message, Route } from '../../shared/types'
 import type { Env } from '../env'
 import { streamAnswer } from '../ai/answer'
 import { HANDED_OFF_ACK, URGENT_ACK } from '../../shared/copy'
-import {
-  getParent,
-  insertMessage,
-  insertRequest,
-  listKnowledge,
-  listMessages,
-  markRequestHandedOff,
-  type NewRequest,
-} from '../lib/db'
+import { listKnowledge } from '../db/knowledge'
+import { insertMessage, listMessages } from '../db/messages'
+import { getParent } from '../db/parents'
+import { insertRequest, markRequestHandedOff, type NewRequest } from '../db/requests'
 import { decide } from '../domain/decide'
 import { routeQuestion, type RouteInput } from '../ai/router'
 

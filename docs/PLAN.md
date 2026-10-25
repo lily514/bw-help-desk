@@ -138,9 +138,17 @@ knowledge_entries (
   title TEXT NOT NULL,
   category TEXT NOT NULL,        -- Hours | Fees | Health | Meals | Pickup | Program | Policies
   body TEXT NOT NULL,            -- plain text / light markdown
-  from_parent_question INTEGER NOT NULL DEFAULT 0,
+  source TEXT NOT NULL DEFAULT 'handbook',  -- 'handbook' | 'reply' (Save as answer) | 'manual' (New entry)
   source_inquiry_id TEXT,
   updated_at TEXT NOT NULL
+)
+
+knowledge_additions (            -- replies saved onto an existing entry, kept apart from its body
+  id TEXT PRIMARY KEY,
+  entry_id TEXT NOT NULL,
+  text TEXT NOT NULL,
+  source_inquiry_id TEXT,
+  created_at TEXT NOT NULL
 )
 
 test_results (
@@ -338,12 +346,12 @@ Shared: header with logo, "Maple Grove," "Front desk"; input pinned to the botto
     3. **Why this came to you:** the reason, with a **Details** toggle showing scores and which router ran.
     4. **What {parent} already heard:** the AI answer (dashed border) and its chips, only if one was sent.
     5. **Forwarding:** "Suggested: {role}" chip, role dropdown, **Forward** button. Forwarding only updates status and the parent's card.
-    6. **Reply:** textarea, **Send reply**, and a **Save as answer** checkbox ("so the AI can answer this next time"). When checked: (•) **Add to existing entry** with a dropdown defaulting to the best match (same topic, most word overlap), or ( ) **Create a new entry from this reply** (title = the question, body = the reply, category = topic, `from_parent_question = 1`). Adding to an existing entry appends the reply as a new paragraph and bumps `updated_at`.
+    6. **Reply:** textarea, **Send reply**, and a **Save as answer** checkbox ("so the AI can answer this next time"). When checked: (•) **Add to existing entry** with a dropdown defaulting to the best match (same topic, most word overlap), or ( ) **Create a new entry from this reply** (title = the question, body = the reply, category = topic, `source = 'reply'`). Adding to an existing entry saves the reply as a `knowledge_additions` row (the entry's own text is untouched) and bumps `updated_at`. The AI and the parent's policy sheet read each addition as a paragraph after the body.
 - Sending appends a staff message to the parent thread and sets status Replied.
 
-**Knowledge list.** Header: Test mode switch, **New entry**. Subline "{n} entries. The AI only answers from what's here." Cards grouped by category, responsive grid (min 260px): title, one-line preview, "Updated {date}," "From a parent question" tag where set.
+**Knowledge list.** Header: Test mode switch, **New entry**. Subline "{n} entries. The AI only answers from what's here." Cards grouped by category, responsive grid (min 260px): title, one-line preview, "Updated {date}," source tags: "From a parent question" (`reply`), "Written by you" (`manual`), "+{n} saved replies" (additions). Handbook entries carry no tag.
 
-**Knowledge editor.** Breadcrumb "Knowledge / Edit entry." Meta row ("Saved from your reply to Sam Rivera · Updated Oct 23, 2026" when applicable). Fields: Title, Category, Answer (plain textarea; hint "Plain text. The AI quotes from this and links parents to it."). Cancel / **Save** (bumps `updated_at`). The next chat call uses the new text automatically.
+**Knowledge editor.** Breadcrumb "Knowledge / Edit entry." Meta row ("Saved from your reply to Sam Rivera · Updated Oct 23, 2026" when applicable). The meta row also shows the source tags, plus "From the handbook" for handbook entries. Fields: Title, Category, Answer (plain textarea; hint "Plain text. The AI quotes from this and links parents to it."). If the entry has additions, an **Added from your replies** box follows: one textarea per addition headed "From your reply to {parent} · {date}", each with **Remove**; edits and removals apply on Save. Cancel / **Save** (bumps `updated_at`). The next chat call uses the new text automatically.
 
 **Insights** (last 7 days, excluding test). Three stat tiles: Questions asked, Answered by AI %, Sent to a person %. Top topics with counts and horizontal bars scaled to the max. **Couldn't answer:** grouped uncovered questions with "Asked N times" and an **Add answer** button opening a new entry prefilled with the question as title.
 

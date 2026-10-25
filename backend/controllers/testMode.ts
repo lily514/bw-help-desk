@@ -4,12 +4,12 @@ import type { Route } from '../../shared/types'
 import type { Env } from '../env'
 import { listResults, recordResult, resetTestData } from '../services/testMode'
 
-export const test = new Hono<{ Bindings: Env }>()
+export const testMode = new Hono<{ Bindings: Env }>()
 
 const ROUTES: Route[] = ['answered', 'looped_in', 'handed_off', 'urgent']
 
 /** POST /api/test/result — one scenario's outcome from the client-driven run (PLAN.md 4.5). */
-test.post('/result', async (c) => {
+testMode.post('/result', async (c) => {
   const body = await c.req.json<{
     runId?: unknown
     scenarioNum?: unknown
@@ -35,7 +35,7 @@ test.post('/result', async (c) => {
 })
 
 /** GET /api/test/results?runId= — without a run id, the latest run. */
-test.get('/results', async (c) =>
+testMode.get('/results', async (c) =>
   c.json(await listResults(c.env.DB, c.req.query('runId') || undefined)),
 )
 
@@ -43,7 +43,7 @@ test.get('/results', async (c) =>
  * POST /api/test/reset { demoParents? } — demo parents are deleted unless
  * `demoParents: false` (used when a new run starts).
  */
-test.post('/reset', async (c) => {
+testMode.post('/reset', async (c) => {
   const body: { demoParents?: unknown } = await c.req.json().catch(() => ({}))
   await resetTestData(c.env.DB, body.demoParents !== false)
   return c.json({ ok: true })

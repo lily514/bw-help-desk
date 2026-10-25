@@ -56,11 +56,11 @@ export const api = {
   createParent: (input: { name: string; childName: string; room: Room; isTest?: boolean }) =>
     post<Parent>('/api/parents', input),
 
-  listKnowledge: () => request<KnowledgeEntry[]>('/api/kb'),
-  getKnowledge: (id: string) => request<KnowledgeEntryDetail>(`/api/kb/${enc(id)}`),
-  createKnowledge: (input: KnowledgeInput) => send<KnowledgeEntry>('POST', '/api/kb', input),
+  listKnowledge: () => request<KnowledgeEntry[]>('/api/knowledge'),
+  getKnowledge: (id: string) => request<KnowledgeEntryDetail>(`/api/knowledge/${enc(id)}`),
+  createKnowledge: (input: KnowledgeInput) => send<KnowledgeEntry>('POST', '/api/knowledge', input),
   updateKnowledge: (id: string, input: KnowledgeInput) =>
-    send<KnowledgeEntry>('PUT', `/api/kb/${enc(id)}`, input),
+    send<KnowledgeEntry>('PUT', `/api/knowledge/${enc(id)}`, input),
 
   thread: (parentId: string, since?: string) =>
     request<ThreadResponse>(`/api/thread/${enc(parentId)}${since ? `?since=${enc(since)}` : ''}`),

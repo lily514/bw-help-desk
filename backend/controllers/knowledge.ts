@@ -9,7 +9,7 @@ import {
   type EntryInput,
 } from '../services/knowledge'
 
-export const kb = new Hono<{ Bindings: Env }>()
+export const knowledge = new Hono<{ Bindings: Env }>()
 
 function parseInput(raw: Record<string, unknown>): EntryInput | null {
   const title = typeof raw.title === 'string' ? raw.title.trim() : ''
@@ -21,11 +21,11 @@ function parseInput(raw: Record<string, unknown>): EntryInput | null {
 
 const INVALID_ENTRY = { error: 'title, body and a valid category are required' }
 
-kb.get('/', async (c) => c.json(await listEntries(c.env.DB)))
+knowledge.get('/', async (c) => c.json(await listEntries(c.env.DB)))
 
-kb.get('/:id', async (c) => c.json(await getEntryDetail(c.env.DB, c.req.param('id'))))
+knowledge.get('/:id', async (c) => c.json(await getEntryDetail(c.env.DB, c.req.param('id'))))
 
-kb.post('/', async (c) => {
+knowledge.post('/', async (c) => {
   const raw = await c.req.json<Record<string, unknown>>()
   const input = parseInput(raw)
   if (!input) return c.json(INVALID_ENTRY, 400)
@@ -37,7 +37,7 @@ kb.post('/', async (c) => {
   return c.json(entry, 201)
 })
 
-kb.put('/:id', async (c) => {
+knowledge.put('/:id', async (c) => {
   const input = parseInput(await c.req.json<Record<string, unknown>>())
   if (!input) return c.json(INVALID_ENTRY, 400)
   return c.json(await updateEntry(c.env.DB, c.req.param('id'), input))

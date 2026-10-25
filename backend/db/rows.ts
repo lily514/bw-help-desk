@@ -2,7 +2,9 @@ import type { TestResult } from '../../shared/testScenarios'
 import type {
   Category,
   InboxItem,
+  KnowledgeAddition,
   KnowledgeEntry,
+  KnowledgeSource,
   Message,
   MessageRole,
   Parent,
@@ -31,9 +33,19 @@ export interface KnowledgeRow {
   title: string
   category: string
   body: string
-  from_parent_question: number
+  source: string
   source_inquiry_id: string | null
   updated_at: string
+}
+
+/** A `knowledge_additions` row joined with the name of the parent who asked. */
+export interface KnowledgeAdditionRow {
+  id: string
+  entry_id: string
+  text: string
+  source_inquiry_id: string | null
+  parent_name: string | null
+  created_at: string
 }
 
 export interface MessageRow {
@@ -100,15 +112,29 @@ export function toParent(r: ParentRow): Parent {
   }
 }
 
-export function toKnowledgeEntry(r: KnowledgeRow): KnowledgeEntry {
+export function toKnowledgeEntry(
+  r: KnowledgeRow,
+  additions: KnowledgeAddition[] = [],
+): KnowledgeEntry {
   return {
     id: r.id,
     title: r.title,
     category: r.category as Category,
     body: r.body,
-    fromParentQuestion: r.from_parent_question === 1,
+    source: r.source as KnowledgeSource,
     sourceInquiryId: r.source_inquiry_id,
+    additions,
     updatedAt: r.updated_at,
+  }
+}
+
+export function toKnowledgeAddition(r: KnowledgeAdditionRow): KnowledgeAddition {
+  return {
+    id: r.id,
+    text: r.text,
+    sourceInquiryId: r.source_inquiry_id,
+    sourceParentName: r.parent_name,
+    createdAt: r.created_at,
   }
 }
 

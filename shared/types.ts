@@ -29,13 +29,29 @@ export interface Parent {
   createdAt: string
 }
 
+/** Where an entry came from: the handbook seed, Dana's "Save as answer", or the editor. */
+export type KnowledgeSource = 'handbook' | 'reply' | 'manual'
+
+/** A reply Dana saved onto an existing entry. Kept apart from the entry's own body. */
+export interface KnowledgeAddition {
+  id: string
+  text: string
+  sourceInquiryId: string | null
+  /** The parent whose question the reply answered, for "From your reply to …". */
+  sourceParentName: string | null
+  createdAt: string
+}
+
 export interface KnowledgeEntry {
   id: string
   title: string
   category: Category
+  /** The entry's own text: the handbook section, or what Dana wrote when creating it. */
   body: string
-  fromParentQuestion: boolean
+  source: KnowledgeSource
   sourceInquiryId: string | null
+  /** Oldest first. The AI and parents see them as paragraphs after the body (`entryText`). */
+  additions: KnowledgeAddition[]
   updatedAt: string
 }
 

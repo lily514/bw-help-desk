@@ -25,9 +25,10 @@ function insert(table: string, row: Record<string, SqlValue>): string {
     .join(', ')});`
 }
 
-/** SQL that replaces the knowledge base with the handbook seed. */
+/** SQL that replaces the knowledge base with the handbook seed, saved replies included. */
 export function knowledgeSeedSql(handbookMd: string): string[] {
   return [
+    'DELETE FROM knowledge_additions;',
     'DELETE FROM knowledge_entries;',
     ...parseHandbook(handbookMd).map((e) =>
       insert('knowledge_entries', {
@@ -35,7 +36,7 @@ export function knowledgeSeedSql(handbookMd: string): string[] {
         title: e.title,
         category: e.category,
         body: e.body,
-        from_parent_question: 0,
+        source: 'handbook',
         source_inquiry_id: null,
         updated_at: e.updatedAt,
       }),

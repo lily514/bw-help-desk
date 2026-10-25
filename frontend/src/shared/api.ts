@@ -50,6 +50,8 @@ function post<T>(path: string, body?: unknown): Promise<T> {
 const enc = encodeURIComponent
 
 export type KnowledgeInput = Pick<KnowledgeEntry, 'title' | 'category' | 'body'>
+/** PUT also takes the entry's saved replies: listed ones are updated, the rest removed. */
+export type KnowledgeUpdate = KnowledgeInput & { additions?: { id: string; text: string }[] }
 
 export const api = {
   getParent: (id: string) => request<Parent>(`/api/parents/${enc(id)}`),
@@ -59,7 +61,7 @@ export const api = {
   listKnowledge: () => request<KnowledgeEntry[]>('/api/knowledge'),
   getKnowledge: (id: string) => request<KnowledgeEntryDetail>(`/api/knowledge/${enc(id)}`),
   createKnowledge: (input: KnowledgeInput) => send<KnowledgeEntry>('POST', '/api/knowledge', input),
-  updateKnowledge: (id: string, input: KnowledgeInput) =>
+  updateKnowledge: (id: string, input: KnowledgeUpdate) =>
     send<KnowledgeEntry>('PUT', `/api/knowledge/${enc(id)}`, input),
 
   thread: (parentId: string, since?: string) =>

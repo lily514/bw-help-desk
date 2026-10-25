@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { entryText } from '../../../shared/knowledge'
 import type { KnowledgeEntry } from '../../../shared/types'
 import { api } from '../shared/api'
 import { formatDate } from '../shared/format'
@@ -56,7 +57,7 @@ export function PolicySheet({ entryId, onClose }: { entryId: string; onClose: ()
           </button>
         </div>
         <div className="sheet-body">
-          {entry && <Markdown text={entry.body} />}
+          {entry && <Markdown text={entryText(entry)} />}
           {failed && <p>We couldn't load this policy right now. Please try again in a moment.</p>}
         </div>
         <button type="button" className="btn btn-secondary sheet-back" onClick={onClose}>

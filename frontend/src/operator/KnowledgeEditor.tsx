@@ -11,16 +11,27 @@ import {
 import { CATEGORIES, type Category, type KnowledgeEntryDetail } from '../../../shared/types'
 import { api, ApiError } from '../shared/api'
 import { formatDate } from '../shared/format'
-import { FromParentTag } from './Knowledge'
+import { SourceTags } from './Knowledge'
 
 function isCategory(value: string | null): value is Category {
   return CATEGORIES.includes(value as Category)
+}
+
+/** A saved reply on this entry, as the form edits it. */
+interface AdditionField {
+  id: string
+  text: string
 }
 
 interface Fields {
   title: string
   category: Category
   body: string
+  additions: AdditionField[]
+}
+
+function sameAdditions(a: AdditionField[], b: AdditionField[]): boolean {
+  return a.length === b.length && a.every((x, i) => x.id === b[i].id && x.text === b[i].text)
 }
 
 /** Remount per entry so switching entries (or to a new one) starts from fresh state. */
@@ -51,17 +62,22 @@ function KnowledgeEditor() {
       title: search.get('title') ?? '',
       category: isCategory(fromQuery) ? fromQuery : CATEGORIES[0],
       body: '',
+      additions: [],
     }
   })
   const [title, setTitle] = useState(initial?.title ?? '')
   const [category, setCategory] = useState<Category>(initial?.category ?? CATEGORIES[0])
   const [body, setBody] = useState('')
+  const [additions, setAdditions] = useState<AdditionField[]>([])
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
 
   const dirty =
     initial !== null &&
-    (title !== initial.title || category !== initial.category || body !== initial.body)
+    (title !== initial.title ||
+      category !== initial.category ||
+      body !== initial.body ||
+      !sameAdditions(additions, initial.additions))
   // Set just before navigating away after a successful save, so the blocker lets it through.
   const saved = useRef(false)
   const blocker = useBlocker(
@@ -84,11 +100,13 @@ function KnowledgeEditor() {
       .getKnowledge(entryId)
       .then((e) => {
         if (cancelled) return
+        const fields = e.additions.map(({ id, text }) => ({ id, text }))
         setEntry(e)
-        setInitial({ title: e.title, category: e.category, body: e.body })
+        setInitial({ title: e.title, category: e.category, body: e.body, additions: fields })
         setTitle(e.title)
         setCategory(e.category)
         setBody(e.body)
+        setAdditions(fields)
       })
       .catch((err: unknown) => {
         if (cancelled) return
@@ -109,12 +127,16 @@ function KnowledgeEditor() {
       setSaveError('Add a title and an answer before saving.')
       return
     }
+    if (additions.some((a) => !a.text.trim())) {
+      setSaveError('A saved reply is empty. Add text or remove it.')
+      return
+    }
     setSaving(true)
     setSaveError(null)
     try {
       const input = { title, category, body }
       if (isNew) await api.createKnowledge(input)
-      else await api.updateKnowledge(entryId!, input)
+      else await api.updateKnowledge(entryId!, { ...input, additions })
       saved.current = true
       navigate('/operator/knowledge')
     } catch {
@@ -148,7 +170,7 @@ function KnowledgeEditor() {
       <form className="kb-editor" onSubmit={save}>
         {entry && (
           <div className="kb-editor-meta">
-            {entry.fromParentQuestion && <FromParentTag large />}
+            <SourceTags entry={entry} large withHandbook />
             <span className="muted">
               {entry.sourceParentName && `Saved from your reply to ${entry.sourceParentName} · `}
               Updated {formatDate(entry.updatedAt)}
@@ -195,6 +217,56 @@ function KnowledgeEditor() {
             Plain text. The AI quotes from this and links parents to it.
           </span>
         </div>
+
+        {entry && entry.additions.length > 0 && (
+          <section className="kb-additions" aria-labelledby="additions-title">
+            <div>
+              <h2 id="additions-title" className="kb-additions-title">
+                Added from your replies
+              </h2>
+              <p className="field-hint">
+                Kept apart from the answer above. The AI and parents read them as part of this
+                entry.
+              </p>
+            </div>
+            {additions.length === 0 && (
+              <p className="muted">All removed. Save to confirm, or Cancel to keep them.</p>
+            )}
+            {additions.map((a, i) => {
+              const meta = entry.additions.find((x) => x.id === a.id)
+              const fieldId = `addition-${a.id}`
+              return (
+                <div key={a.id} className="kb-addition">
+                  <div className="kb-addition-head">
+                    <label htmlFor={fieldId}>
+                      {meta?.sourceParentName
+                        ? `From your reply to ${meta.sourceParentName}`
+                        : 'From your reply'}
+                      {meta && <span className="muted"> · {formatDate(meta.createdAt)}</span>}
+                    </label>
+                    <button
+                      type="button"
+                      className="text-button"
+                      onClick={() => setAdditions(additions.filter((x) => x.id !== a.id))}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <textarea
+                    id={fieldId}
+                    rows={3}
+                    value={a.text}
+                    onChange={(e) =>
+                      setAdditions(
+                        additions.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)),
+                      )
+                    }
+                  />
+                </div>
+              )
+            })}
+          </section>
+        )}
 
         <div className="kb-editor-actions">
           {saveError && (

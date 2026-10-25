@@ -20,7 +20,8 @@ describe('parseHandbook', () => {
       title: 'Weekly Tuition',
       category: 'Fees',
       updatedAt: '2026-08-01T12:00:00.000Z',
-      fromParentQuestion: false,
+      source: 'handbook',
+      additions: [],
     })
     expect(tuition?.body).toContain('| Twos | $270 |')
     expect(entries.find((e) => e.id === 'meals:menu')?.updatedAt).toBe('2026-10-19T12:00:00.000Z')

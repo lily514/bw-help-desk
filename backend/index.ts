@@ -8,6 +8,7 @@ import { parents } from './routes/parents'
 import { requests } from './routes/requests'
 import { test } from './routes/test'
 import { thread } from './routes/thread'
+import { NotFoundError } from './services/errors'
 
 // Static assets (the React app) are served by Workers Assets; only /api/* reaches this app.
 const app = new Hono<{ Bindings: Env }>().basePath('/api')
@@ -25,6 +26,7 @@ app.route('/test', test)
 app.notFound((c) => c.json({ error: 'Not found' }, 404))
 
 app.onError((err, c) => {
+  if (err instanceof NotFoundError) return c.json({ error: err.message }, 404)
   console.error(err)
   return c.json({ error: 'Something went wrong' }, 500)
 })

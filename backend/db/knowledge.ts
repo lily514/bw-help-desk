@@ -1,5 +1,4 @@
-import type { Category, KnowledgeEntry } from '../../shared/types'
-import { slugify } from '../domain/slug'
+import type { KnowledgeEntry } from '../../shared/types'
 import { toKnowledgeEntry, type KnowledgeRow } from './rows'
 
 export async function listKnowledge(db: D1Database): Promise<KnowledgeEntry[]> {
@@ -53,18 +52,6 @@ export async function insertKnowledge(db: D1Database, e: KnowledgeEntry): Promis
       e.updatedAt,
     )
     .run()
-}
-
-/** New entries get ids like `program:do_you_offer_swim_lessons`, de-duplicated with a suffix. */
-export async function createEntryId(
-  db: D1Database,
-  category: Category,
-  title: string,
-): Promise<string> {
-  const base = `${category.toLowerCase()}:${slugify(title)}`
-  let id = base
-  for (let n = 2; await getKnowledge(db, id); n++) id = `${base}_${n}`
-  return id
 }
 
 export async function updateKnowledge(

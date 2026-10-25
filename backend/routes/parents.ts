@@ -1,20 +1,13 @@
 import { Hono } from 'hono'
-import { ROOMS, type Parent, type Room } from '../../shared/types'
+import { ROOMS, type Room } from '../../shared/types'
 import type { Env } from '../env'
-import { getParent, insertParent } from '../db/parents'
-import { slugify } from '../domain/slug'
+import { createDemoParent, getParent } from '../services/parents'
 
 export const parents = new Hono<{ Bindings: Env }>()
 
-parents.get('/:id', async (c) => {
-  const parent = await getParent(c.env.DB, c.req.param('id'))
-  return parent ? c.json(parent) : c.json({ error: 'Parent not found' }, 404)
-})
+parents.get('/:id', async (c) => c.json(await getParent(c.env.DB, c.req.param('id'))))
 
-/**
- * Evaluators create their own demo parent (is_demo = 1, cleared on Reset). Test mode
- * creates its scripted parents with `isTest`, so their requests are excluded from Insights.
- */
+/** POST /api/parents { name, childName, room, isTest? } — a demo parent. */
 parents.post('/', async (c) => {
   const body = await c.req.json<{
     name?: unknown
@@ -30,15 +23,11 @@ parents.post('/', async (c) => {
     return c.json({ error: 'name, childName and a valid room are required' }, 400)
   }
 
-  const parent: Parent = {
-    id: `demo-${slugify(name, 24)}-${crypto.randomUUID().slice(0, 8)}`,
-    name: name.slice(0, 80),
-    childName: childName.slice(0, 40),
+  const parent = await createDemoParent(c.env.DB, {
+    name,
+    childName,
     room,
-    isDemo: true,
     isTest: body.isTest === true,
-    createdAt: new Date().toISOString(),
-  }
-  await insertParent(c.env.DB, parent)
+  })
   return c.json(parent, 201)
 })

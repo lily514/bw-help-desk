@@ -16,7 +16,7 @@ export function contentWords(text: string): Set<string> {
   )
 }
 
-interface Candidate {
+interface EntryCandidate {
   id: string
   title: string
   category: Category
@@ -30,7 +30,7 @@ interface Candidate {
 export function suggestEntry(
   question: string,
   topic: Category,
-  entries: Candidate[],
+  entries: EntryCandidate[],
 ): string | null {
   const words = contentWords(question)
   const sameTopic = entries.filter((e) => e.category === topic)

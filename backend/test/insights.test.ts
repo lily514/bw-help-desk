@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { questionKey, summarizeInsights, type InsightRow } from '../lib/insights'
+import { questionKey, summarizeInsights, type InsightRow } from '../domain/insights'
 
 function row(extra: Partial<InsightRow> = {}): InsightRow {
   return {

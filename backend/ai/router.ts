@@ -10,7 +10,7 @@ import {
 } from '../../shared/types'
 import type { Env } from '../env'
 import { CENTER_TIME_ZONE, formatEntry } from './answer'
-import { LLM_TIMEOUT_MS, openRouter } from './llm'
+import { LLM_TIMEOUT_MS, openRouter } from './openrouter'
 
 /**
  * Routing questions (PLAN.md 3.2). Jev (TypeSafe's decisions model, served by

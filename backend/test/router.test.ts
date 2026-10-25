@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseJevAnswers, parseLlmScores } from '../lib/router'
+import { parseJevAnswers, parseLlmScores } from '../ai/router'
 
 const VALID = {
   topic: 'Health',

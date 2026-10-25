@@ -1,7 +1,7 @@
 import type { Route, RouteScores } from '../../shared/types'
 import { DIRECTOR, HANDED_OFF_ACK } from '../../shared/copy'
-import { parseHandbook } from './handbook'
-import { suggestedRole } from './roles'
+import { parseHandbook } from '../domain/handbook'
+import { suggestedRole } from '../domain/roles'
 import {
   DEMO_PARENT,
   HISTORY_PARENTS,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { plainPunctuation } from '../lib/answer'
-import { CitationStream } from '../lib/citations'
+import { plainPunctuation } from '../ai/answer'
+import { CitationStream } from '../domain/citations'
 
 const VALID = new Set(['hours:holidays', 'fees:tuition', 'hours:regular'])
 

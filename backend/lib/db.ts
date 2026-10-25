@@ -12,7 +12,7 @@ import type {
   StaffRole,
   ThreadRequest,
 } from '../../shared/types'
-import { slugify } from './slug'
+import { slugify } from '../domain/slug'
 
 // Row shapes as stored in D1 (snake_case, 0/1 booleans).
 

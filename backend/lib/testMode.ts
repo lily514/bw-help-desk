@@ -1,6 +1,6 @@
 import type { Route } from '../../shared/types'
 import type { TestResult } from '../../shared/testScenarios'
-import { knowledgeSeedSql } from './seed'
+import { knowledgeSeedSql } from '../seed/seed'
 
 interface TestResultRow {
   id: string

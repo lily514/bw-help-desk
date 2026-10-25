@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { streamSSE } from 'hono/streaming'
 import type { ChatEvent, Message, Route } from '../../shared/types'
 import type { Env } from '../env'
-import { streamAnswer } from '../lib/answer'
+import { streamAnswer } from '../ai/answer'
 import { HANDED_OFF_ACK, URGENT_ACK } from '../../shared/copy'
 import {
   getParent,
@@ -13,8 +13,8 @@ import {
   markRequestHandedOff,
   type NewRequest,
 } from '../lib/db'
-import { decide } from '../lib/decide'
-import { routeQuestion, type RouteInput } from '../lib/router'
+import { decide } from '../domain/decide'
+import { routeQuestion, type RouteInput } from '../ai/router'
 
 export const chat = new Hono<{ Bindings: Env }>()
 

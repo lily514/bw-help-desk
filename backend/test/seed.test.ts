@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { categoryForId, parseHandbook } from '../lib/handbook'
-import { buildSeedSql, easternTime, sqlValue } from '../lib/seed'
-import { SEED_QUESTIONS } from '../lib/seed-data'
-import { slugify } from '../lib/slug'
+import { categoryForId, parseHandbook } from '../domain/handbook'
+import { buildSeedSql, easternTime, sqlValue } from '../seed/seed'
+import { SEED_QUESTIONS } from '../seed/seed-data'
+import { slugify } from '../domain/slug'
 
 const handbook = readFileSync('data/handbook.md', 'utf8')
 

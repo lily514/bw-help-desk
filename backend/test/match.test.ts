@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { parseHandbook } from '../lib/handbook'
-import { bestMatchEntry, contentWords } from '../lib/match'
+import { parseHandbook } from '../domain/handbook'
+import { bestMatchEntry, contentWords } from '../domain/match'
 
 const kb = parseHandbook(readFileSync('data/handbook.md', 'utf8'))
 

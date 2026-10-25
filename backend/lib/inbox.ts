@@ -11,7 +11,7 @@ import type {
   StaffRole,
 } from '../../shared/types'
 import { toMessage, type MessageRow, type RequestRow } from './db'
-import { bestMatchEntry } from './match'
+import { bestMatchEntry } from '../domain/match'
 
 type InboxRow = RequestRow & {
   text: string

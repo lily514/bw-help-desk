@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { RouteScores } from '../../shared/types'
-import { decide } from '../lib/decide'
+import { decide } from '../domain/decide'
 
 /** A plain, covered, factual question; override fields per case. */
 function scores(overrides: Partial<RouteScores> = {}): RouteScores {

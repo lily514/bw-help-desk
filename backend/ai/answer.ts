@@ -1,8 +1,8 @@
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions'
 import type { KnowledgeEntry, Message, Parent } from '../../shared/types'
 import type { Env } from '../env'
-import { CitationStream } from './citations'
-import { LLM_TIMEOUT_MS, openRouter } from './llm'
+import { CitationStream } from '../domain/citations'
+import { LLM_TIMEOUT_MS, openRouter } from './openrouter'
 
 /** The time zone for the Maple Grove Early Learning Center; NOT central time */
 export const CENTER_TIME_ZONE = 'America/Indiana/Indianapolis'

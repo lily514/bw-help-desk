@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import type { Category, Route } from '../../shared/types'
 import type { Env } from '../env'
-import { INSIGHTS_DAYS, summarizeInsights } from '../lib/insights'
+import { INSIGHTS_DAYS, summarizeInsights } from '../domain/insights'
 
 export const insights = new Hono<{ Bindings: Env }>()
 

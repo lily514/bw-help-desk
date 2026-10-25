@@ -78,6 +78,15 @@
   flex: 1;
 }
 
+/* Sits at the bottom of the sidebar, just above the profile. */
+.sidebar .nav-home {
+  margin-top: auto;
+}
+
+.sidebar .nav-home + .sidebar-profile {
+  margin-top: 0;
+}
+
 .nav-count {
   min-width: 22px;
   height: 22px;

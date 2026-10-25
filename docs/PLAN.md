@@ -320,8 +320,8 @@ Shared: header with logo, "Maple Grove," "Front desk"; input pinned to the botto
 - Bubbles: parent = accent, right, white text · AI = white with border, left · staff = `staff-bubble`, with initials avatar and "Dana Whitfield · Director · 12:18 PM". Staff must look clearly different from AI.
 - Citation chip: file icon + entry title; opens the policy sheet.
 - "Ask a person": small link under every AI answer.
-- **Status card** (Looped in, Handed off, Urgent): title line ("Shared with the front desk," "Sent to Dana, Director," "Staff alerted at 5:41 PM," or "Forwarded to {role}"), and a 3-step tracker **Delivered → Seen → Replied** (check = done, ring = current, empty = pending). Handed-off version adds "Dana usually replies within 2 hours on weekdays." and "Call the center: (765) 555-0142."
-- **Urgent banner:** orange, full width, under the header. "Call the center now" / "Staff have been alerted. Calling is the fastest way to reach them." White 48px `tel:` button "Call (765) 555-0142."
+- **Status card** (Looped in, Handed off, Urgent): title line ("Shared with the front desk," "Sent to Dana, Director," "Staff alerted at 5:41 PM," or "Forwarded to {role}"), and a 3-step tracker **Delivered → Seen → Replied** (check = done, ring = current, empty = pending). Handed-off version adds "Dana usually replies within 2 hours on weekdays." and "Call the center: XXX-XXX-XXXX."
+- **Urgent banner:** orange, full width, under the header. "Call the center now" / "Staff have been alerted. Calling is the fastest way to reach them." White 48px `tel:` button "Call XXX-XXX-XXXX."
 
 **Policy sheet.** Bottom sheet over a dimmed thread, ~600px tall, grabber. Category pill, title, "Updated {date}," scrollable body, round × close, "Back to chat" button.
 
@@ -378,7 +378,7 @@ Canned reply for #3: "Yes, she can. Send the office her full name and phone numb
 
 ### 4.6 Copy that may be hard-coded
 
-Center phone (765) 555-0142; "Dana usually replies within 2 hours on weekdays"; Dana's name and role; the handed-off acknowledgement. Everything else factual comes from the KB.
+Center phone XXX-XXX-XXXX; "Dana usually replies within 2 hours on weekdays"; Dana's name and role; the handed-off acknowledgement. Everything else factual comes from the KB.
 
 ---
 
